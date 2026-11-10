@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Ludoteca PenTech</title>
+<meta name="description" content="Todos los contadores de PenTech para juegos de mesa, en una sola app.">
+<meta name="theme-color" content="#cfe3e6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ludoteca">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preload" href="fonts/bagel-fat-one.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Bagel Fat One";src:url(fonts/bagel-fat-one.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url(fonts/bricolage-grotesque.woff2) format("woff2");font-weight:200 800;font-display:swap}
+
+:root{
+  --pared:#cfe3e6; --pared2:#bcd6da; --tinta:#14323a; --suave:#3f6570;
+  --madera:#dcb87f; --madera2:#c59a5c; --canto:#a97f45;
+  --papel:#fbf6e9; --tintaPapel:#1c2b2f;
+  --verde:#1f8f55; --amarillo:#ffd23f; --hueco:rgba(20,50,58,.10);
+  --titulo:"Bagel Fat One","Arial Black",system-ui,sans-serif;
+  --texto:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+:root[data-tema="noche"]{
+  --pared:#102a31; --pared2:#0b2026; --tinta:#f3ead6; --suave:#9dbcc2;
+  --madera:#7a5535; --madera2:#5f3f25; --canto:#43291a;
+  --papel:#eadfc6; --tintaPapel:#1c2b2f; --hueco:rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation}
+body{margin:0;min-height:100dvh;background:var(--pared);color:var(--tinta);font-family:var(--texto);
+  font-size:16px;line-height:1.35;overscroll-behavior-y:none;user-select:none;-webkit-user-select:none;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--tinta);outline-offset:3px;border-radius:6px}
+.app{max-width:520px;margin:0 auto;padding:10px 16px 28px}
+
+/* Cabecera */
+.barra{display:flex;justify-content:space-between;align-items:center}
+.redondo{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--hueco)}
+.redondo svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.redondo:active{transform:scale(.94)}
+h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);line-height:.9;margin:14px 0 0;letter-spacing:-.01em}
+.sub{margin:8px 0 0;color:var(--suave);font-size:1.05rem;font-weight:500}
+
+/* Filtros */
+.filtros{display:flex;gap:8px;margin:20px 0 22px}
+.filtros button{padding:9px 16px;border-radius:999px;font-weight:600;font-size:.95rem;background:var(--hueco);min-height:40px}
+.filtros button[aria-pressed="true"]{background:var(--tinta);color:var(--pared)}
+
+/* Estantería */
+.estante{display:grid;grid-template-columns:1fr 1fr;border-inline:11px solid var(--madera2);border-top:11px solid var(--madera2);
+  border-radius:4px 4px 0 0;background:linear-gradient(var(--pared2),var(--pared2))}
+.caja{display:flex;flex-direction:column;justify-content:flex-end;text-align:left;text-decoration:none;color:inherit;min-width:0}
+.hueco{padding:22px 16px 0;display:flex;align-items:flex-end;flex:1}
+.frente{position:relative;display:block;width:100%;aspect-ratio:1/1;border-radius:5px 5px 2px 2px;container-type:inline-size;
+  background:linear-gradient(155deg,var(--c1),var(--c2));
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -9px 0 rgba(0,0,0,.2),inset 3px 0 0 rgba(255,255,255,.08),0 2px 0 rgba(0,0,0,.25);
+  transition:transform .12s ease-out}
+.caja:active .frente{transform:translateY(-6px) rotate(-1.5deg)}
+.frente img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.rotulo{position:absolute;inset:0;display:flex;align-items:center;padding:0 9cqi 5cqi;font-family:var(--titulo);
+  font-size:18cqi;line-height:.95;color:var(--ct,#fff);text-wrap:balance;overflow-wrap:anywhere;text-shadow:0 2px 0 rgba(0,0,0,.22)}
+.pegatina{position:absolute;top:-10px;right:-9px;font-weight:700;font-size:.8rem;line-height:1;white-space:nowrap;
+  box-shadow:0 2px 3px rgba(0,0,0,.3)}
+.pegatina.gratis{background:var(--verde);color:#fff;min-width:54px;height:54px;padding:0 7px;border-radius:50%;display:grid;place-items:center;transform:rotate(11deg)}
+.pegatina.pago{background:var(--amarillo);color:#1c2b2f;padding:8px 10px 8px 16px;transform:rotate(7deg);
+  clip-path:polygon(11px 0,100% 0,100% 100%,11px 100%,0 50%);box-shadow:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.pegatina.activo{background:#fff;color:var(--verde);padding:7px 10px;border-radius:999px;transform:rotate(-6deg);border:2px solid var(--verde)}
+.caja.pronto .frente{filter:grayscale(.75) opacity(.55)}
+.balda{display:block;min-height:58px;padding:7px 9px 9px;background:linear-gradient(var(--madera),var(--madera2));
+  border-bottom:4px solid var(--canto);box-shadow:0 5px 8px -4px rgba(0,0,0,.35)}
+.ficha{display:block;background:var(--papel);color:var(--tintaPapel);border-radius:3px;padding:5px 8px 6px;height:100%;
+  box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.ficha b{display:block;font-weight:700;font-size:.98rem;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ficha small{display:block;font-size:.8rem;line-height:1.2;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.caja.vacia .hueco{min-height:0}
+.caja.vacia .balda{flex:none}
+
+/* Pie */
+.pie{margin-top:26px;text-align:center}
+.pie button{color:var(--suave);font-size:.9rem;padding:10px 14px;text-decoration:underline;text-underline-offset:3px}
+
+/* Ventanas */
+dialog{border:0;border-radius:14px;padding:0;background:var(--papel);color:var(--tintaPapel);width:min(88vw,420px);max-height:82dvh;
+  box-shadow:0 18px 50px rgba(0,0,0,.45);font-family:var(--texto)}
+dialog::backdrop{background:rgba(8,24,29,.6)}
+.vent{padding:20px 20px 18px}
+.vent h2{font-family:var(--titulo);font-weight:400;font-size:1.7rem;line-height:1;margin:0 0 14px}
+.vent p{margin:0 0 10px;font-size:.95rem;line-height:1.45;user-select:text;-webkit-user-select:text}
+.vent .ver{opacity:.65;font-size:.85rem}
+.idiomas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.idiomas button{padding:13px 10px;border-radius:10px;background:rgba(20,50,58,.09);font-weight:600;color:var(--tintaPapel)}
+.idiomas button[aria-current="true"]{background:#14323a;color:#fbf6e9}
+.cerrar{display:block;width:100%;margin-top:14px;padding:13px;border-radius:10px;background:#14323a;color:#fbf6e9;font-weight:700}
+
+/* Aviso breve */
+.aviso{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:var(--tinta);color:var(--pared);padding:12px 18px;border-radius:999px;font-weight:600;font-size:.95rem;max-width:88vw;text-align:center;
+  transition:opacity .2s,transform .2s;z-index:5}
+.aviso.ver{opacity:1;transform:translate(-50%,0)}
+
+/* Solo vertical */
+.gira{display:none;position:fixed;inset:0;z-index:9;background:var(--pared);color:var(--tinta);place-items:center;font-family:var(--titulo);font-size:2rem}
+@media (orientation:landscape) and (max-height:480px){.gira{display:grid}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="barra">
+    <button class="redondo" id="bIdioma" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.400 5.800 12 3z"/></svg>
+    </button>
+    <button class="redondo" id="bTema" type="button"></button>
+  </div>
+  <h1 id="titulo"></h1>
+  <p class="sub" id="sub"></p>
+  <div class="filtros" id="filtros"></div>
+  <main class="estante" id="estante"></main>
+  <div class="pie"><button type="button" id="bLegal"></button></div>
+</div>
+
+<dialog id="dIdioma"><div class="vent"><h2 id="tIdioma"></h2><div class="idiomas" id="listaIdiomas"></div></div></dialog>
+<dialog id="dLegal"><div class="vent"><h2 id="tLegal"></h2><div id="textoLegal"></div><button class="cerrar" type="button" id="bCerrar"></button></div></dialog>
+<div class="aviso" id="aviso" role="status"></div>
+<div class="gira" id="gira"></div>
+
+<script>
+'use strict';
+const VERSION = 'v1.0';
+
+/* ============================================================
+   CATÁLOGO. Para añadir un contador, copia un bloque y cámbialo.
+   - url:    dirección publicada. Vacía = sale como «Pronto».
+   - icono:  imagen cuadrada del contador (opcional). Si falta o no carga,
+             la caja se pinta con el nombre y los colores c1, c2 y ct.
+   - pago:   true si lleva clave de licencia. prueba = partidas gratis.
+   - lic:    (opcional) dónde guarda el contador que la clave está puesta,
+             p. ej. { clave:'nombre-en-localStorage', valor:'1' }.
+             Con eso la caja pasa de «De pago» a «Activado».
+   ============================================================ */
+const CATALOGO = [
+  { id:'la-cuenta', nombre:'La Cuenta', pago:false,
+    url:'https://pentech-26.github.io/la-cuenta-contador/', icono:'https://pentech-26.github.io/la-cuenta-contador/icon-192.png',
+    c1:'#d9483b', c2:'#a82d24', ct:'#fff6e6' },
+  { id:'toma-6', nombre:'Toma 6', pago:false,
+    url:'https://pentech-26.github.io/Toma-6-contador/', icono:'https://pentech-26.github.io/Toma-6-contador/icon-192.png',
+    c1:'#6a45a8', c2:'#452a78', ct:'#ffe27a' },
+  { id:'ratas-de-wistar', nombre:{ es:'Ratas de Wistar', ca:'Ratas de Wistar', otros:'Rats of Wistar' }, pago:true, prueba:3, lic:{ clave:'rw_licencia', valor:'true' },
+    url:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/', icono:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/icon-192.png',
+    c1:'#3d6336', c2:'#2f4a2b', ct:'#f1e6b8' },
+  { id:'catan', nombre:'Catan', pago:true, prueba:3, lic:{ clave:'catan-licencia-v1' },
+    url:'https://pentech-26.github.io/Catan-contador/', icono:'https://pentech-26.github.io/Catan-contador/icon-192.png',
+    c1:'#c5341f', c2:'#8f1f14', ct:'#f6cf5b' },
+  { id:'tichu', nombre:'Tichu', pago:true, prueba:1, lic:{ clave:'tichu-pro-lic' },
+    url:'https://pentech-26.github.io/Tichu-contador/', icono:'https://pentech-26.github.io/Tichu-contador/icon-192.png',
+    c1:'#8c2433', c2:'#5e1522', ct:'#e9c46a' },
+  { id:'7-wonders', nombre:'7 Wonders', pago:true, prueba:3, lic:{ clave:'sw7-lic-v2' },
+    url:'https://pentech-26.github.io/7-Wonders-Contador/', icono:'https://pentech-26.github.io/7-Wonders-Contador/icon-192.png',
+    c1:'#2a5f8f', c2:'#173d63', ct:'#f2d27a' }
+];
+
+const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:'Deutsch', it:'Italiano' };
+
+const T = {
+  es:{ titulo:'Ludoteca', sub:'Los contadores de PenTech', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
+    libre:'Partidas sin límite', prueba1:'1 partida de prueba', pruebaN:'{n} partidas de prueba', conClave:'Clave activada', pronto:'Llegará pronto',
+    aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', cerrar:'Cerrar', gira:'Gira el móvil',
+    aNoche:'Cambiar a modo noche', aDia:'Cambiar a modo día', abrir:'Abrir el contador de {j}',
+    textoLegal:['Ludoteca reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
+      'No están afiliados, patrocinados ni aprobados por los autores ni por las editoriales de los juegos. Los nombres de los juegos son marcas de sus respectivos propietarios.',
+      'Para jugar necesitas un ejemplar de cada juego. Las claves de licencia dan acceso a los contadores, no a los juegos.'] },
+  ca:{ titulo:'Ludoteca', sub:'Els comptadors de PenTech', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
+    libre:'Partides sense límit', prueba1:'1 partida de prova', pruebaN:'{n} partides de prova', conClave:'Clau activada', pronto:'Arribarà aviat',
+    aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', cerrar:'Tanca', gira:'Gira el mòbil',
+    aNoche:'Canvia a mode nit', aDia:'Canvia a mode dia', abrir:'Obre el comptador de {j}',
+    textoLegal:['Ludoteca aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
+      'No estan afiliats, patrocinats ni aprovats pels autors ni per les editorials dels jocs. Els noms dels jocs són marques dels seus propietaris respectius.',
+      'Per jugar necessites un exemplar de cada joc. Les claus de llicència donen accés als comptadors, no als jocs.'] },
+  en:{ titulo:'Game shelf', sub:'Score counters by PenTech', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
+    libre:'Unlimited games', prueba1:'1 trial game', pruebaN:'{n} trial games', conClave:'Key activated', pronto:'Coming soon',
+    aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', cerrar:'Close', gira:'Rotate your phone',
+    aNoche:'Switch to night mode', aDia:'Switch to day mode', abrir:'Open the {j} counter',
+    textoLegal:['Game shelf gathers the unofficial score counters created independently by PenTech.',
+      'They are not affiliated with, sponsored or endorsed by the designers or publishers of the games. Game names are trademarks of their respective owners.',
+      'You need a copy of each game to play. Licence keys give access to the counters, not to the games.'] },
+  fr:{ titulo:'Ludothèque', sub:'Les compteurs de PenTech', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
+    libre:'Parties illimitées', prueba1:'1 partie d’essai', pruebaN:'{n} parties d’essai', conClave:'Clé activée', pronto:'Bientôt disponible',
+    aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', cerrar:'Fermer', gira:'Tournez le téléphone',
+    aNoche:'Passer en mode nuit', aDia:'Passer en mode jour', abrir:'Ouvrir le compteur de {j}',
+    textoLegal:['Ludothèque rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
+      'Ils ne sont ni affiliés, ni sponsorisés, ni approuvés par les auteurs ou les éditeurs des jeux. Les noms des jeux sont des marques de leurs propriétaires respectifs.',
+      'Pour jouer, il vous faut un exemplaire de chaque jeu. Les clés de licence donnent accès aux compteurs, pas aux jeux.'] },
+  de:{ titulo:'Spieleregal', sub:'Die Punktezähler von PenTech', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
+    libre:'Unbegrenzt spielen', prueba1:'1 Testpartie', pruebaN:'{n} Testpartien', conClave:'Schlüssel aktiviert', pronto:'Kommt bald',
+    aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', cerrar:'Schließen', gira:'Handy drehen',
+    aNoche:'Zum Nachtmodus wechseln', aDia:'Zum Tagmodus wechseln', abrir:'Zähler für {j} öffnen',
+    textoLegal:['Spieleregal versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
+      'Sie stehen in keiner Verbindung zu den Autoren oder Verlagen der Spiele und werden von ihnen weder gesponsert noch unterstützt. Die Spielenamen sind Marken ihrer jeweiligen Inhaber.',
+      'Zum Spielen brauchst du ein Exemplar des jeweiligen Spiels. Lizenzschlüssel geben Zugang zu den Zählern, nicht zu den Spielen.'] },
+  it:{ titulo:'Ludoteca', sub:'I contatori di PenTech', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
+    libre:'Partite senza limite', prueba1:'1 partita di prova', pruebaN:'{n} partite di prova', conClave:'Chiave attivata', pronto:'In arrivo',
+    aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', cerrar:'Chiudi', gira:'Ruota il telefono',
+    aNoche:'Passa alla modalità notte', aDia:'Passa alla modalità giorno', abrir:'Apri il contatore di {j}',
+    textoLegal:['Ludoteca riunisce i contatori di punti non ufficiali creati in modo indipendente da PenTech.',
+      'Non sono affiliati, sponsorizzati né approvati dagli autori o dagli editori dei giochi. I nomi dei giochi sono marchi dei rispettivi proprietari.',
+      'Per giocare serve una copia di ciascun gioco. Le chiavi di licenza danno accesso ai contatori, non ai giochi.'] }
+};
+
+/* ---------- Almacenamiento (nunca debe romper la app) ---------- */
+const mem = {
+  leer(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  guardar(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+const $ = id => document.getElementById(id);
+
+/* ---------- Idioma ---------- */
+function idiomaInicial(){
+  // 1º lo elegido aquí; 2º lo elegido en algún contador; 3º el idioma del móvil; si no, inglés.
+  for (const k of ['ludoteca-idioma','catan-idioma','rw_idioma']){
+    const v = mem.leer(k);
+    if (v && T[v]) return v;
+  }
+  const nav = (navigator.languages && navigator.languages[0] || navigator.language || 'en').slice(0,2).toLowerCase();
+  return T[nav] ? nav : 'en';
+}
+let idioma = idiomaInicial();
+let filtro = 'todos';
+const t = (k, v) => { let s = T[idioma][k]; if (v) for (const n in v) s = s.replace('{'+n+'}', v[n]); return s; };
+const nombreDe = j => typeof j.nombre === 'string' ? j.nombre : (j.nombre[idioma] || j.nombre.otros);
+
+/* ---------- Tema ---------- */
+const LUNA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.500A8 8 0 0 1 9.500 4a8 8 0 1 0 10.500 10.500z"/></svg>';
+const SOL = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.500v2.500M12 19v2.500M2.500 12H5M19 12h2.500M5.300 5.300l1.800 1.800M16.900 16.900l1.800 1.800M5.300 18.700l1.800-1.800M16.900 7.100l1.800-1.800"/></svg>';
+let tema = mem.leer('ludoteca-tema') || (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia');
+function aplicarTema(){
+  document.documentElement.dataset.tema = tema;
+  document.querySelector('meta[name="theme-color"]').content = tema === 'noche' ? '#102a31' : '#cfe3e6';
+  // El icono indica el modo al que se cambia.
+  $('bTema').innerHTML = tema === 'noche' ? SOL : LUNA;
+  $('bTema').setAttribute('aria-label', t(tema === 'noche' ? 'aDia' : 'aNoche'));
+}
+
+/* ---------- Licencias ---------- */
+function activado(j){
+  if (!j.pago || !j.lic || !j.lic.clave) return false;
+  const v = mem.leer(j.lic.clave);
+  return v !== null && (j.lic.valor === undefined || v === String(j.lic.valor));
+}
+
+/* ---------- Pintar ---------- */
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function pintarEstante(){
+  const lista = CATALOGO.filter(j => filtro === 'todos' || (filtro === 'pago') === !!j.pago);
+  let html = '';
+  for (const j of lista){
+    const nombre = esc(nombreDe(j));
+    const lista_ = !!j.url, act = activado(j);
+    let pegatina = '', detalle;
+    if (!lista_) detalle = t('pronto');
+    else if (!j.pago){ pegatina = '<span class="pegatina gratis">'+t('gratis')+'</span>'; detalle = t('libre'); }
+    else if (act){ pegatina = '<span class="pegatina activo">'+t('activado')+'</span>'; detalle = t('conClave'); }
+    else { pegatina = '<span class="pegatina pago">'+t('pago')+'</span>'; detalle = j.prueba === 1 ? t('prueba1') : t('pruebaN', {n:j.prueba}); }
+    const arte = '<span class="rotulo">'+nombre+'</span>' +
+      (j.icono ? '<img src="'+esc(j.icono)+'" alt="" loading="lazy" onerror="this.remove()">' : '');
+    const dentro = '<span class="hueco"><span class="frente" style="--c1:'+j.c1+';--c2:'+j.c2+';--ct:'+j.ct+'">'+arte+pegatina+'</span></span>' +
+      '<span class="balda"><span class="ficha"><b>'+nombre+'</b><small>'+detalle+'</small></span></span>';
+    html += lista_
+      ? '<a class="caja" href="'+esc(j.url)+'" data-id="'+j.id+'" aria-label="'+esc(t('abrir',{j:nombreDe(j)}))+'">'+dentro+'</a>'
+      : '<button type="button" class="caja pronto" data-id="'+j.id+'">'+dentro+'</button>';
+  }
+  // Si queda un hueco suelto, se cierra con un tramo de balda para que el mueble no quede cojo.
+  if (lista.length % 2) html += '<span class="caja vacia" aria-hidden="true"><span class="hueco"></span><span class="balda"></span></span>';
+  $('estante').innerHTML = html;
+}
+
+function pintarFiltros(){
+  $('filtros').innerHTML = [['todos','todos'],['gratis','gratis'],['pago','pago']].map(([id,k]) =>
+    '<button type="button" data-f="'+id+'" aria-pressed="'+(filtro===id)+'">'+t(k)+'</button>').join('');
+}
+
+function aplicarIdioma(){
+  document.documentElement.lang = idioma;
+  $('titulo').textContent = t('titulo');
+  $('sub').textContent = t('sub');
+  $('bLegal').textContent = t('legal') + ' · ' + VERSION;
+  $('bIdioma').setAttribute('aria-label', t('idioma'));
+  $('tIdioma').textContent = t('idioma');
+  $('tLegal').textContent = t('legal');
+  $('bCerrar').textContent = t('cerrar');
+  $('gira').textContent = t('gira');
+  $('textoLegal').innerHTML = T[idioma].textoLegal.map(p => '<p>'+esc(p)+'</p>').join('') +
+    '<p class="ver">Ludoteca PenTech · '+VERSION+'</p>';
+  $('listaIdiomas').innerHTML = Object.keys(IDIOMAS).map(c =>
+    '<button type="button" data-l="'+c+'" aria-current="'+(c===idioma)+'">'+IDIOMAS[c]+'</button>').join('');
+  pintarFiltros(); pintarEstante(); aplicarTema();
+}
+
+/* ---------- Aviso breve ---------- */
+let relojAviso;
+function avisar(txt){
+  const a = $('aviso'); a.textContent = txt; a.classList.add('ver');
+  clearTimeout(relojAviso); relojAviso = setTimeout(() => a.classList.remove('ver'), 2200);
+}
+
+/* ---------- Eventos ---------- */
+$('estante').addEventListener('click', e => {
+  const c = e.target.closest('.caja.pronto'); if (!c) return;
+  const j = CATALOGO.find(x => x.id === c.dataset.id);
+  avisar(t('aunNo', {j:nombreDe(j)}));
+});
+$('filtros').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  filtro = b.dataset.f; pintarFiltros(); pintarEstante();
+});
+$('bTema').addEventListener('click', () => { tema = tema === 'noche' ? 'dia' : 'noche'; mem.guardar('ludoteca-tema', tema); aplicarTema(); });
+$('bIdioma').addEventListener('click', () => $('dIdioma').showModal());
+$('listaIdiomas').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  idioma = b.dataset.l; mem.guardar('ludoteca-idioma', idioma); aplicarIdioma(); $('dIdioma').close();
+});
+$('bLegal').addEventListener('click', () => $('dLegal').showModal());
+$('bCerrar').addEventListener('click', () => $('dLegal').close());
+for (const d of document.querySelectorAll('dialog'))
+  d.addEventListener('click', e => { if (e.target === d) d.close(); });   // tocar fuera cierra
+
+// Al volver de un contador se repinta: puede haberse activado una clave.
+window.addEventListener('pageshow', pintarEstante);
+// Sin zoom de pellizco en iPhone.
+document.addEventListener('gesturestart', e => e.preventDefault());
+
+aplicarIdioma();
+
+if ('serviceWorker' in navigator && location.protocol === 'https:')
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
