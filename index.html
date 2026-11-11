@@ -110,6 +110,16 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 .meeple.vivo{opacity:1}
 .meepleCuerpo{height:100%;transform-origin:50% 100%}
 .meeple svg{display:block;height:100%;width:auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+/* El bocadillo de cómic que suelta el meeple */
+.bocadillo{position:absolute;z-index:3;padding:7px 13px 8px;border-radius:16px 16px 16px 4px;
+  background:#fff;color:#14323a;border:3px solid #14323a;box-shadow:3px 3px 0 rgba(20,50,58,.22);
+  font-family:var(--titulo);font-weight:400;font-size:.95rem;line-height:1;white-space:nowrap;
+  pointer-events:none;opacity:0;transform:scale(.3);transform-origin:left bottom;
+  transition:opacity .13s ease-out,transform .26s cubic-bezier(.25,1.7,.5,1)}
+.bocadillo.ver{opacity:1;transform:scale(1)}
+.bocadillo::after{content:"";position:absolute;left:7px;bottom:-10px;width:15px;height:15px;background:#fff;
+  border-right:3px solid #14323a;border-bottom:3px solid #14323a;border-bottom-right-radius:3px;
+  transform:rotate(57deg) skewX(-12deg)}
 
 /* Estantería */
 .estante{display:grid;grid-template-columns:1fr 1fr;border-inline:11px solid var(--madera2);border-top:11px solid var(--madera2);
@@ -235,6 +245,7 @@ body.conVisor{overflow:hidden}
 <div class="visor" id="visor">
   <div class="visorBarra"><button type="button" id="bVolver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5.500L4.500 12l6.500 6.500"/></svg><span id="tVolver"></span></button></div>
 </div>
+<div class="bocadillo" id="bocadillo" aria-hidden="true"></div>
 <div class="aviso" id="aviso" role="status"></div>
 <div class="gira" id="gira"></div>
 
@@ -278,42 +289,42 @@ const CATALOGO = [
 const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:'Deutsch', it:'Italiano' };
 
 const T = {
-  es:{ volver:'Volver a LudoTech', titulo:'LudoTech', sub:'Espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
+  es:{ hola:'¡HOLA!', volver:'Volver a LudoTech', titulo:'LudoTech', sub:'El espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
     libre:'Partidas sin límite', prueba1:'1 partida de prueba', pruebaN:'{n} partidas de prueba', conClave:'Clave activada', pronto:'Llegará pronto',
     aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', tema:'Tema', cerrar:'Cerrar', gira:'Gira el móvil',
     tAuto:'Automático', tDia:'Modo día', tNoche:'Modo noche', abrir:'Abrir el contador de {j}',
     textoLegal:['LudoTech reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
       'No están afiliados, patrocinados ni aprobados por los autores ni por las editoriales de los juegos. Los nombres de los juegos son marcas de sus respectivos propietarios.',
       'Para jugar necesitas un ejemplar de cada juego. Las claves de licencia dan acceso a los contadores, no a los juegos.'] },
-  ca:{ volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
+  ca:{ hola:'HOLA!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'L’espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
     libre:'Partides sense límit', prueba1:'1 partida de prova', pruebaN:'{n} partides de prova', conClave:'Clau activada', pronto:'Arribarà aviat',
     aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', tema:'Tema', cerrar:'Tanca', gira:'Gira el mòbil',
     tAuto:'Automàtic', tDia:'Mode dia', tNoche:'Mode nit', abrir:'Obre el comptador de {j}',
     textoLegal:['LudoTech aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
       'No estan afiliats, patrocinats ni aprovats pels autors ni per les editorials dels jocs. Els noms dels jocs són marques dels seus propietaris respectius.',
       'Per jugar necessites un exemplar de cada joc. Les claus de llicència donen accés als comptadors, no als jocs.'] },
-  en:{ volver:'Back to LudoTech', titulo:'LudoTech', sub:'A home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
+  en:{ hola:'HI!', volver:'Back to LudoTech', titulo:'LudoTech', sub:'The home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
     libre:'Unlimited games', prueba1:'1 trial game', pruebaN:'{n} trial games', conClave:'Key activated', pronto:'Coming soon',
     aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', tema:'Theme', cerrar:'Close', gira:'Rotate your phone',
     tAuto:'Automatic', tDia:'Day mode', tNoche:'Night mode', abrir:'Open the {j} counter',
     textoLegal:['LudoTech gathers the unofficial score counters created independently by PenTech.',
       'They are not affiliated with, sponsored or endorsed by the designers or publishers of the games. Game names are trademarks of their respective owners.',
       'You need a copy of each game to play. Licence keys give access to the counters, not to the games.'] },
-  fr:{ volver:'Retour à LudoTech', titulo:'LudoTech', sub:'L’espace de vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
+  fr:{ hola:'SALUT !', volver:'Retour à LudoTech', titulo:'LudoTech', sub:'L’espace pour vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
     libre:'Parties illimitées', prueba1:'1 partie d’essai', pruebaN:'{n} parties d’essai', conClave:'Clé activée', pronto:'Bientôt disponible',
     aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', tema:'Thème', cerrar:'Fermer', gira:'Tournez le téléphone',
     tAuto:'Automatique', tDia:'Mode jour', tNoche:'Mode nuit', abrir:'Ouvrir le compteur de {j}',
     textoLegal:['LudoTech rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
       'Ils ne sont ni affiliés, ni sponsorisés, ni approuvés par les auteurs ou les éditeurs des jeux. Les noms des jeux sont des marques de leurs propriétaires respectifs.',
       'Pour jouer, il vous faut un exemplaire de chaque jeu. Les clés de licence donnent accès aux compteurs, pas aux jeux.'] },
-  de:{ volver:'Zurück zu LudoTech', titulo:'LudoTech', sub:'Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
+  de:{ hola:'HALLO!', volver:'Zurück zu LudoTech', titulo:'LudoTech', sub:'Der Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
     libre:'Unbegrenzt spielen', prueba1:'1 Testpartie', pruebaN:'{n} Testpartien', conClave:'Schlüssel aktiviert', pronto:'Kommt bald',
     aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', tema:'Darstellung', cerrar:'Schließen', gira:'Handy drehen',
     tAuto:'Automatisch', tDia:'Heller Modus', tNoche:'Dunkler Modus', abrir:'Zähler für {j} öffnen',
     textoLegal:['LudoTech versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
       'Sie stehen in keiner Verbindung zu den Autoren oder Verlagen der Spiele und werden von ihnen weder gesponsert noch unterstützt. Die Spielenamen sind Marken ihrer jeweiligen Inhaber.',
       'Zum Spielen brauchst du ein Exemplar des jeweiligen Spiels. Lizenzschlüssel geben Zugang zu den Zählern, nicht zu den Spielen.'] },
-  it:{ volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
+  it:{ hola:'CIAO!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
     libre:'Partite senza limite', prueba1:'1 partita di prova', pruebaN:'{n} partite di prova', conClave:'Chiave attivata', pronto:'In arrivo',
     aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', tema:'Tema', cerrar:'Chiudi', gira:'Ruota il telefono',
     tAuto:'Automatico', tDia:'Modalità giorno', tNoche:'Modalità notte', abrir:'Apri il contatore di {j}',
@@ -573,7 +584,7 @@ const quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)
    Física de verdad: gravedad, rebotes que pierden fuerza, rozamiento y volteretas.
    El recorrido se mide sobre el ancho real del título, así vale en cualquier pantalla. */
 const FIS = { g:2800, rebote:.52, roce:.86, giro:.58, alto:.56 };
-let relojMeeple = 0, altoMeeple = 40, anchoMeeple = 35;
+let relojMeeple = 0, relojHola = 0, altoMeeple = 40, anchoMeeple = 35, sitioQuieto = null;
 
 function sitioTitulo(){
   const h = $('titulo'), app = document.querySelector('.app');
@@ -582,6 +593,8 @@ function sitioTitulo(){
   const rt = rg.getBoundingClientRect();
   const F = parseFloat(getComputedStyle(h).fontSize);
   return { suelo: rh.top - ra.top + .115 * F,        // la raya por donde bota: justo encima de las letras
+           // lo que baja al final para quedarse a horcajadas sobre los dos palos de la u
+           aLaU: (.357 - .115) * F,
            izq: rt.left - ra.left, ancho: rt.width, F };
 }
 
@@ -604,15 +617,16 @@ function ponMeeple(x, base, ang, aplasta){
 function tiraMeeple(){
   const el = $('meeple'); if (!el) return;
   cancelAnimationFrame(relojMeeple);
-  const { suelo, izq, ancho, F } = sitioTitulo();
+  sitioQuieto = null; $('bocadillo').classList.remove('ver');   // si vuelve a saltar, nada de bocadillo
+  const { suelo, izq, ancho, F, aLaU } = sitioTitulo();
   altoMeeple = Math.max(26, Math.round(FIS.alto * F));
   anchoMeeple = altoMeeple * .865;
   el.style.height = altoMeeple + 'px';
   el.classList.add('vivo');
 
   const xCae = letraX(7) || izq + .88 * ancho;   // cae sobre la h, que es alta y hace de suelo
-  const xFin = letraX(2) || izq + .22 * ancho;   // acaba de pie sobre la d, también alta
-  if (quieto){ ponMeeple(xFin, suelo, 0, 0); return; }   // si el móvil pide no moverse, directo al final
+  const xFin = letraX(1) || izq + .13 * ancho;   // acaba sobre la u, un pie en cada palo
+  if (quieto){ posaMeeple(xFin, suelo + aLaU, 0); return; }   // si el móvil pide no moverse, directo al final
 
   const PARA = 34;                           // por debajo de esta velocidad ya no bota más
   let base = -altoMeeple * 1.2, x = xCae, vy = 0, vx = 0, ang = -22, w = -660, aplasta = 0, botes = 0;
@@ -643,28 +657,64 @@ function tiraMeeple(){
     if (!antes) antes = ts;
     resto += Math.min(.25, (ts - antes) / 1000); antes = ts;
     while (resto >= PASO && !fin){ tic(); resto -= PASO; }
-    if (fin){ deJaDePie(x, suelo, ang); return; }
+    if (fin){ deJaDePie(x, xFin, suelo, ang, aLaU); return; }
     ponMeeple(x, base, ang, aplasta);
     relojMeeple = requestAnimationFrame(paso);
   }
   relojMeeple = requestAnimationFrame(paso);
 }
 
-function deJaDePie(x, suelo, ang){          // se endereza con un último golpe de riñón
-  const desde = ang, hasta = Math.round(ang / 360) * 360, t0 = performance.now();
+// Último paso: se deja caer entre los palos de la u, se acomoda y se pone derecho
+function deJaDePie(x, xFin, suelo, ang, hondo){
+  const desde = ang, hasta = Math.round(ang / 360) * 360, deX = x, t0 = performance.now();
   (function gira(ts){
-    const k = Math.min(1, (ts - t0) / 430), e = 1 - Math.pow(1 - k, 3);
-    ponMeeple(x, suelo - Math.sin(k * Math.PI) * altoMeeple * .07, desde + (hasta - desde) * e, 0);
+    const k = Math.min(1, (ts - t0) / 520), e = 1 - Math.pow(1 - k, 3);
+    const baja = hondo * (1 - Math.pow(1 - Math.min(1, k * 1.5), 2));      // la caidita final
+    const brinco = k > .6 ? Math.sin((k - .6) / .4 * Math.PI) * hondo * .14 : 0;   // y su rebotito
+    ponMeeple(deX + (xFin - deX) * e, suelo + baja - brinco, desde + (hasta - desde) * e, 0);
     if (k < 1) relojMeeple = requestAnimationFrame(gira);
+    else posaMeeple(xFin, suelo + hondo, hasta);
   })(performance.now());
+}
+
+function posaMeeple(x, base, ang){          // ya está quieto: a partir de aquí tiembla y saluda
+  ponMeeple(x, base, ang, 0);
+  sitioQuieto = { x, base, ang };
+}
+
+/* Cada cierto rato se estremece y suelta un «hola» en el idioma de la app. */
+const CADA = 3000;
+function tiembla(){
+  if (!sitioQuieto || quieto || document.hidden) return;
+  const { x, base, ang } = sitioQuieto, t0 = performance.now();
+  (function sacude(ts){
+    const k = (ts - t0) / 500;
+    if (k >= 1 || !sitioQuieto){ if (sitioQuieto) ponMeeple(x, base, ang, 0); diHola(); return; }
+    const fuerza = Math.sin(k * Math.PI);                       // crece y se apaga
+    ponMeeple(x + Math.sin(k * 44) * 1.8 * fuerza, base - Math.abs(Math.sin(k * 22)) * 1.2 * fuerza,
+              ang + Math.sin(k * 36) * 7 * fuerza, 0);
+    requestAnimationFrame(sacude);
+  })(performance.now());
+}
+function diHola(){
+  if (!sitioQuieto) return;
+  const bo = $('bocadillo');
+  bo.textContent = t('hola');
+  bo.style.left = (sitioQuieto.x + anchoMeeple * .45).toFixed(1) + 'px';
+  bo.style.top = (sitioQuieto.base - altoMeeple - 28).toFixed(1) + 'px';
+  bo.classList.add('ver');
+  clearTimeout(relojHola);
+  relojHola = setTimeout(() => bo.classList.remove('ver'), 1700);
 }
 
 $('meeple').addEventListener('click', e => { e.stopPropagation(); tiraMeeple(); });   // tocarlo lo lanza otra vez
 addEventListener('resize', () => {          // al girar o cambiar de tamaño, se queda de pie en su sitio
   cancelAnimationFrame(relojMeeple); relojMeeple = 0;
-  const { suelo, izq, ancho } = sitioTitulo();
-  ponMeeple(letraX(2) || izq + .22 * ancho, suelo, 0, 0);
+  const { suelo, izq, ancho, aLaU } = sitioTitulo();
+  $('bocadillo').classList.remove('ver');
+  posaMeeple(letraX(1) || izq + .13 * ancho, suelo + aLaU, 0);
 });
+setInterval(tiembla, CADA);
 // se espera a que cargue la tipografía: si no, el título aún no mide lo que medirá
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(tiraMeeple, 260));
 else setTimeout(tiraMeeple, 500);
