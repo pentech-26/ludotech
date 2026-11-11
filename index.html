@@ -99,6 +99,18 @@ dialog::backdrop{background:rgba(8,24,29,.6)}
 .idiomas button[aria-current="true"]{background:#14323a;color:#fbf6e9}
 .cerrar{display:block;width:100%;margin-top:14px;padding:13px;border-radius:10px;background:#14323a;color:#fbf6e9;font-weight:700}
 
+/* Visor: el contador abierto dentro de la Ludoteca */
+.visor{position:fixed;inset:0;z-index:8;display:none;flex-direction:column;background:var(--vc,#14323a);
+  padding-top:env(safe-area-inset-top)}
+.visor.abierto{display:flex}
+.visor iframe{flex:1;width:100%;min-height:0;border:0;display:block;background:var(--vc,#14323a)}
+.visorBarra{flex:none;display:flex;justify-content:center;padding:5px 0 calc(5px + env(safe-area-inset-bottom));background:var(--vc,#14323a)}
+.visorBarra button{display:flex;align-items:center;gap:7px;min-height:34px;padding:0 16px 0 12px;border-radius:999px;
+  background:rgba(255,255,255,.16);color:#fff;font-weight:600;font-size:.9rem}
+.visorBarra button:active{background:rgba(255,255,255,.3)}
+.visorBarra svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+body.conVisor{overflow:hidden}
+
 /* Aviso breve */
 .aviso{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;
   background:var(--tinta);color:var(--pared);padding:12px 18px;border-radius:999px;font-weight:600;font-size:.95rem;max-width:88vw;text-align:center;
@@ -128,12 +140,15 @@ dialog::backdrop{background:rgba(8,24,29,.6)}
 
 <dialog id="dIdioma"><div class="vent"><h2 id="tIdioma"></h2><div class="idiomas" id="listaIdiomas"></div></div></dialog>
 <dialog id="dLegal"><div class="vent"><h2 id="tLegal"></h2><div id="textoLegal"></div><button class="cerrar" type="button" id="bCerrar"></button></div></dialog>
+<div class="visor" id="visor">
+  <div class="visorBarra"><button type="button" id="bVolver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span id="tVolver"></span></button></div>
+</div>
 <div class="aviso" id="aviso" role="status"></div>
 <div class="gira" id="gira"></div>
 
 <script>
 'use strict';
-const VERSION = 'v1.0';
+const VERSION = 'v1.1';
 
 /* ============================================================
    CATÁLOGO. Para añadir un contador, copia un bloque y cámbialo.
@@ -169,42 +184,42 @@ const CATALOGO = [
 const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:'Deutsch', it:'Italiano' };
 
 const T = {
-  es:{ titulo:'Ludoteca', sub:'Los contadores de PenTech', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
+  es:{ volver:'Volver a la Ludoteca', titulo:'Ludoteca', sub:'Los contadores de PenTech', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
     libre:'Partidas sin límite', prueba1:'1 partida de prueba', pruebaN:'{n} partidas de prueba', conClave:'Clave activada', pronto:'Llegará pronto',
     aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', cerrar:'Cerrar', gira:'Gira el móvil',
     aNoche:'Cambiar a modo noche', aDia:'Cambiar a modo día', abrir:'Abrir el contador de {j}',
     textoLegal:['Ludoteca reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
       'No están afiliados, patrocinados ni aprobados por los autores ni por las editoriales de los juegos. Los nombres de los juegos son marcas de sus respectivos propietarios.',
       'Para jugar necesitas un ejemplar de cada juego. Las claves de licencia dan acceso a los contadores, no a los juegos.'] },
-  ca:{ titulo:'Ludoteca', sub:'Els comptadors de PenTech', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
+  ca:{ volver:'Torna a la Ludoteca', titulo:'Ludoteca', sub:'Els comptadors de PenTech', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
     libre:'Partides sense límit', prueba1:'1 partida de prova', pruebaN:'{n} partides de prova', conClave:'Clau activada', pronto:'Arribarà aviat',
     aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', cerrar:'Tanca', gira:'Gira el mòbil',
     aNoche:'Canvia a mode nit', aDia:'Canvia a mode dia', abrir:'Obre el comptador de {j}',
     textoLegal:['Ludoteca aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
       'No estan afiliats, patrocinats ni aprovats pels autors ni per les editorials dels jocs. Els noms dels jocs són marques dels seus propietaris respectius.',
       'Per jugar necessites un exemplar de cada joc. Les claus de llicència donen accés als comptadors, no als jocs.'] },
-  en:{ titulo:'Game shelf', sub:'Score counters by PenTech', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
+  en:{ volver:'Back to the shelf', titulo:'Game shelf', sub:'Score counters by PenTech', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
     libre:'Unlimited games', prueba1:'1 trial game', pruebaN:'{n} trial games', conClave:'Key activated', pronto:'Coming soon',
     aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', cerrar:'Close', gira:'Rotate your phone',
     aNoche:'Switch to night mode', aDia:'Switch to day mode', abrir:'Open the {j} counter',
     textoLegal:['Game shelf gathers the unofficial score counters created independently by PenTech.',
       'They are not affiliated with, sponsored or endorsed by the designers or publishers of the games. Game names are trademarks of their respective owners.',
       'You need a copy of each game to play. Licence keys give access to the counters, not to the games.'] },
-  fr:{ titulo:'Ludothèque', sub:'Les compteurs de PenTech', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
+  fr:{ volver:'Retour à la ludothèque', titulo:'Ludothèque', sub:'Les compteurs de PenTech', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
     libre:'Parties illimitées', prueba1:'1 partie d’essai', pruebaN:'{n} parties d’essai', conClave:'Clé activée', pronto:'Bientôt disponible',
     aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', cerrar:'Fermer', gira:'Tournez le téléphone',
     aNoche:'Passer en mode nuit', aDia:'Passer en mode jour', abrir:'Ouvrir le compteur de {j}',
     textoLegal:['Ludothèque rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
       'Ils ne sont ni affiliés, ni sponsorisés, ni approuvés par les auteurs ou les éditeurs des jeux. Les noms des jeux sont des marques de leurs propriétaires respectifs.',
       'Pour jouer, il vous faut un exemplaire de chaque jeu. Les clés de licence donnent accès aux compteurs, pas aux jeux.'] },
-  de:{ titulo:'Spieleregal', sub:'Die Punktezähler von PenTech', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
+  de:{ volver:'Zurück zum Regal', titulo:'Spieleregal', sub:'Die Punktezähler von PenTech', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
     libre:'Unbegrenzt spielen', prueba1:'1 Testpartie', pruebaN:'{n} Testpartien', conClave:'Schlüssel aktiviert', pronto:'Kommt bald',
     aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', cerrar:'Schließen', gira:'Handy drehen',
     aNoche:'Zum Nachtmodus wechseln', aDia:'Zum Tagmodus wechseln', abrir:'Zähler für {j} öffnen',
     textoLegal:['Spieleregal versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
       'Sie stehen in keiner Verbindung zu den Autoren oder Verlagen der Spiele und werden von ihnen weder gesponsert noch unterstützt. Die Spielenamen sind Marken ihrer jeweiligen Inhaber.',
       'Zum Spielen brauchst du ein Exemplar des jeweiligen Spiels. Lizenzschlüssel geben Zugang zu den Zählern, nicht zu den Spielen.'] },
-  it:{ titulo:'Ludoteca', sub:'I contatori di PenTech', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
+  it:{ volver:'Torna alla Ludoteca', titulo:'Ludoteca', sub:'I contatori di PenTech', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
     libre:'Partite senza limite', prueba1:'1 partita di prova', pruebaN:'{n} partite di prova', conClave:'Chiave attivata', pronto:'In arrivo',
     aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', cerrar:'Chiudi', gira:'Ruota il telefono',
     aNoche:'Passa alla modalità notte', aDia:'Passa alla modalità giorno', abrir:'Apri il contatore di {j}',
@@ -296,6 +311,7 @@ function aplicarIdioma(){
   $('tLegal').textContent = t('legal');
   $('bCerrar').textContent = t('cerrar');
   $('gira').textContent = t('gira');
+  $('tVolver').textContent = t('volver');
   $('textoLegal').innerHTML = T[idioma].textoLegal.map(p => '<p>'+esc(p)+'</p>').join('') +
     '<p class="ver">Ludoteca PenTech · '+VERSION+'</p>';
   $('listaIdiomas').innerHTML = Object.keys(IDIOMAS).map(c =>
@@ -311,7 +327,38 @@ function avisar(txt){
 }
 
 /* ---------- Eventos ---------- */
+/* ---------- Visor ----------
+   El contador se abre dentro de la Ludoteca (en un marco a pantalla completa), así el móvil
+   no enseña la barra del navegador. Debajo queda una franja con el botón para volver. */
+let marco = null;
+function abrirVisor(j){
+  cerrarVisor(true);
+  marco = document.createElement('iframe');
+  marco.src = j.url; marco.title = nombreDe(j);
+  marco.allow = 'autoplay; fullscreen; clipboard-write; web-share';
+  $('visor').style.setProperty('--vc', j.c2);
+  $('visor').insertBefore(marco, $('visor').firstChild);
+  $('visor').classList.add('abierto'); document.body.classList.add('conVisor');
+  document.querySelector('meta[name="theme-color"]').content = j.c2;
+  try { history.pushState({ visor:j.id }, ''); } catch(e){}   // el botón «atrás» de Android también cierra
+}
+function cerrarVisor(silencio){
+  if (!marco) return;
+  marco.remove(); marco = null;                 // al quitar el marco se paran sus sonidos
+  $('visor').classList.remove('abierto'); document.body.classList.remove('conVisor');
+  if (!silencio){ aplicarTema(); pintarEstante(); }   // puede haberse activado una clave
+}
+$('bVolver').addEventListener('click', () => {
+  if (history.state && history.state.visor) history.back(); else cerrarVisor();
+});
+window.addEventListener('popstate', () => cerrarVisor());
+
 $('estante').addEventListener('click', e => {
+  const a = e.target.closest('a.caja');
+  if (a && !e.metaKey && !e.ctrlKey){
+    e.preventDefault();
+    abrirVisor(CATALOGO.find(x => x.id === a.dataset.id)); return;
+  }
   const c = e.target.closest('.caja.pronto'); if (!c) return;
   const j = CATALOGO.find(x => x.id === c.dataset.id);
   avisar(t('aunNo', {j:nombreDe(j)}));
