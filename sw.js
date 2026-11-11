@@ -1,16 +1,16 @@
 /* Ludoteca PenTech · service worker
-   Sube CACHE en cada publicación (ludoteca-v10 → ludoteca-v11 …).
+   Sube CACHE en cada publicación (ludoteca-v12 → ludoteca-v13 …).
 
    Importante: esta app vive en la raíz del sitio y los contadores cuelgan de ella.
    Este service worker SOLO atiende a la lanzadera (sus archivos y las imágenes que
    ella pide). Todo lo que pidan los contadores pasa de largo, sin tocarlo. */
-const CACHE = 'ludoteca-v10';
+const CACHE = 'ludoteca-v12';
 const BASE = new URL(self.registration.scope).pathname;
 const PROPIOS = [
   '', 'index.html', 'manifest.json',
   'fonts/bagel-fat-one.woff2', 'fonts/bricolage-grotesque.woff2',
   'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png',
-  'apple-touch-icon.png', 'favicon-32.png'
+  'apple-touch-icon.png', 'favicon-32.png', 'cactus.webp', 'lampara.webp'
 ].map(f => BASE + f);
 const PAGINAS = [BASE, BASE + 'index.html'];
 

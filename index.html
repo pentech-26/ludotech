@@ -34,7 +34,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;touch-action:manipulation}
 body{margin:0;min-height:100dvh;background:var(--pared);color:var(--tinta);font-family:var(--texto);
-  font-size:16px;line-height:1.35;overscroll-behavior-y:none;user-select:none;-webkit-user-select:none;
+  font-size:16px;line-height:1.35;overscroll-behavior-y:none;overflow-x:clip;user-select:none;-webkit-user-select:none;
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 :focus-visible{outline:3px solid var(--tinta);outline-offset:3px;border-radius:6px}
@@ -45,6 +45,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .redondo{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--hueco)}
 .redondo svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .redondo:active{transform:scale(.94)}
+h1,.sub,.filtros{position:relative;z-index:1}
 h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);line-height:.9;margin:14px 0 0;letter-spacing:-.01em}
 .sub{margin:8px 0 0;color:var(--suave);font-size:1.05rem;font-weight:500}
 
@@ -52,6 +53,43 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 .filtros{display:flex;gap:8px;margin:20px 0 22px}
 .filtros button{padding:9px 16px;border-radius:999px;font-weight:600;font-size:.95rem;background:var(--hueco);min-height:40px}
 .filtros button[aria-pressed="true"]{background:var(--tinta);color:var(--pared)}
+
+/* Adornos sobre el mueble: cactus de día, lámpara de lava de noche. Van detrás del título. */
+.mueble{position:relative}
+.adorno{position:absolute;bottom:calc(100% - 3px);z-index:0;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.adorno img{display:block;height:100%;width:auto}
+.cactus{right:20px;height:150px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.28))}
+.lampara{right:44px;height:172px;display:none;animation:lava 4.5s ease-in-out infinite}
+/* La lava: una capa recortada con la forma del cristal, con burbujas que suben y bajan a su aire */
+.lava{position:absolute;inset:0;overflow:hidden;
+  clip-path:polygon(35.5% 15.6%,64.5% 15.6%,78% 21%,97% 52%,96% 58%,4% 58%,3% 52%,22% 21%);
+  background:linear-gradient(#9a6fd2 15%,#a45fd0 42%,#c22fcb 58%)}
+.lava::after{content:"";position:absolute;inset:0;   /* brillo del cristal */
+  background:linear-gradient(100deg,rgba(255,255,255,0) 22%,rgba(255,255,255,.3) 30%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 72%,rgba(255,255,255,.16) 80%,rgba(255,255,255,0) 88%)}
+.burbuja{position:absolute;left:var(--x);width:var(--t);aspect-ratio:1;translate:-50% 0;
+  background:radial-gradient(circle at 38% 32%,#ff6a8c,#f0305f 55%,#d81f6e);opacity:.93;
+  animation:sube var(--d) ease-in-out var(--r) infinite alternate,bambolea var(--d2) ease-in-out var(--r) infinite alternate}
+@keyframes sube{from{top:52%}to{top:14%}}
+@keyframes bambolea{0%{transform:translateX(calc(var(--v) * -1)) scale(1,1.12);border-radius:46% 54% 52% 48%/58% 56% 44% 42%}
+  50%{transform:translateX(0) scale(1.1,.9);border-radius:54% 46% 44% 56%/46% 50% 50% 54%}
+  100%{transform:translateX(var(--v)) scale(.94,1.18);border-radius:50% 50% 56% 44%/60% 44% 56% 40%}}
+.lava .poso{position:absolute;left:8%;right:8%;bottom:40.500%;height:6%;border-radius:50% 50% 0 0;background:#f0305f;opacity:.93}
+/* La mariposa: entra volando, se posa en la flor y se va (lo decide un temporizador con tiempos al azar) */
+.mariposa{position:absolute;left:53%;top:-6px;width:26px;margin-left:-13px;opacity:0;
+  transform:translate(var(--mx,90px),var(--my,-80px)) rotate(var(--mg,-18deg));
+  transition:transform var(--mt,2.6s) cubic-bezier(.45,.05,.3,1),opacity .5s}
+.mariposa.visible{opacity:1}
+.mariposa .vuelo{animation:revolotea .7s ease-in-out infinite alternate}
+.mariposa.posada .vuelo{animation:none}
+@keyframes revolotea{from{transform:translate(-3px,-5px)}to{transform:translate(3px,5px)}}
+.mariposa svg{display:block;width:100%;overflow:visible}
+.ala{transform-box:view-box;transform-origin:20px 15px;animation:aletea .22s ease-in-out infinite alternate}
+.mariposa.posada .ala{animation-duration:1.1s}
+@keyframes aletea{from{transform:scaleX(1)}to{transform:scaleX(.22)}}
+:root[data-tema="noche"] .cactus{display:none}
+:root[data-tema="noche"] .lampara{display:block}
+@keyframes lava{0%,100%{filter:drop-shadow(0 0 14px rgba(214,60,190,.45)) drop-shadow(0 3px 2px rgba(0,0,0,.5))}
+  50%{filter:drop-shadow(0 0 26px rgba(232,84,150,.75)) drop-shadow(0 3px 2px rgba(0,0,0,.5))}}
 
 /* Estantería */
 .estante{display:grid;grid-template-columns:1fr 1fr;border-inline:11px solid var(--madera2);border-top:11px solid var(--madera2);
@@ -149,7 +187,23 @@ body.conVisor{overflow:hidden}
   <h1 id="titulo"></h1>
   <p class="sub" id="sub"></p>
   <div class="filtros" id="filtros"></div>
-  <main class="estante" id="estante"></main>
+  <div class="mueble">
+    <div class="adorno cactus" aria-hidden="true">
+      <img src="cactus.webp" alt="">
+      <div class="mariposa" id="mariposa"><div class="vuelo">
+        <svg viewBox="0 0 40 30">
+          <g class="ala izq"><path d="M19 15C13 2 3 1 2 8c-1 6 8 9 17 7z" fill="#5b54d6"/><path d="M19 15c-8 0-14 4-12 9 2 5 10 2 12-9z" fill="#7d6cf0"/><circle cx="8" cy="8" r="2.200" fill="#ffd23f"/></g>
+          <g class="ala der"><path d="M21 15C27 2 37 1 38 8c1 6-8 9-17 7z" fill="#5b54d6"/><path d="M21 15c8 0 14 4 12 9-2 5-10 2-12-9z" fill="#7d6cf0"/><circle cx="32" cy="8" r="2.200" fill="#ffd23f"/></g>
+          <path d="M20 8v15" stroke="#1c2b2f" stroke-width="2.400" stroke-linecap="round"/>
+          <path d="M20 9c-1-3-3-5-5-5M20 9c1-3 3-5 5-5" stroke="#1c2b2f" stroke-width="1" fill="none" stroke-linecap="round"/>
+        </svg></div></div>
+    </div>
+    <div class="adorno lampara" aria-hidden="true">
+      <img src="lampara.webp" alt="">
+      <div class="lava" id="lava"></div>
+    </div>
+    <main class="estante" id="estante"></main>
+  </div>
   <div class="pie"><button type="button" id="bLegal"></button></div>
 </div>
 
@@ -163,7 +217,7 @@ body.conVisor{overflow:hidden}
 
 <script>
 'use strict';
-const VERSION = 'v1.9';
+const VERSION = 'v1.11';
 
 /* ============================================================
    CATÁLOGO. Para añadir un contador, copia un bloque y cámbialo.
@@ -414,6 +468,42 @@ for (const d of document.querySelectorAll('dialog'))
 window.addEventListener('pageshow', pintarEstante);
 // Sin zoom de pellizco en iPhone.
 document.addEventListener('gesturestart', e => e.preventDefault());
+
+/* ---------- Adornos con vida ---------- */
+const azar = (a, b) => a + Math.random() * (b - a);
+const quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Lava: cada burbuja nace con tamaño, sitio, ritmo y desfase propios, así nunca se repite igual.
+(function lava(){
+  const caja = $('lava'); let html = '<div class="poso"></div>';
+  for (let i = 0; i < 5; i++){
+    const d = azar(9, 21);
+    html += '<div class="burbuja" style="--t:'+azar(24, 46).toFixed(0)+'%;--x:'+azar(30, 70).toFixed(0)+'%;--v:'+azar(2, 7).toFixed(0)+
+      'px;--d:'+d.toFixed(1)+'s;--d2:'+azar(4, 8).toFixed(1)+'s;--r:-'+azar(0, d * 2).toFixed(1)+'s"></div>';
+  }
+  caja.innerHTML = html;
+})();
+
+// Mariposa: espera un rato al azar, entra por un lado, se posa unos segundos y se va por el otro.
+(function mariposa(){
+  const m = $('mariposa'); if (quieto) return;
+  const pon = (x, y, g, t) => { m.style.setProperty('--mt', t+'s'); m.style.setProperty('--mx', x+'px'); m.style.setProperty('--my', y+'px'); m.style.setProperty('--mg', g+'deg'); };
+  function visita(){
+    if (document.hidden || tema === 'noche'){ setTimeout(visita, 4000); return; }
+    const lado = Math.random() < .5 ? 1 : -1;            // por dónde entra
+    m.style.transition = 'none'; pon(lado * azar(70, 120), -azar(60, 110), lado * -20, 0);
+    void m.offsetWidth; m.style.transition = '';
+    const tEntra = azar(2.2, 3.2), tPosada = azar(4, 9), tSale = azar(2, 3);
+    m.classList.add('visible'); pon(0, 0, 0, tEntra);
+    setTimeout(() => m.classList.add('posada'), tEntra * 1000);
+    setTimeout(() => {
+      m.classList.remove('posada'); pon(-lado * azar(80, 140), -azar(70, 120), -lado * -20, tSale);
+      setTimeout(() => m.classList.remove('visible'), tSale * 1000 - 500);
+      setTimeout(visita, (tSale + azar(8, 22)) * 1000);
+    }, (tEntra + tPosada) * 1000);
+  }
+  setTimeout(visita, azar(2500, 6000));
+})();
 
 aplicarIdioma();
 
