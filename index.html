@@ -38,13 +38,26 @@ body{margin:0;min-height:100dvh;background:var(--pared);color:var(--tinta);font-
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 :focus-visible{outline:3px solid var(--tinta);outline-offset:3px;border-radius:6px}
-.app{max-width:520px;margin:0 auto;padding:10px 16px 28px}
+.app{position:relative;max-width:520px;margin:0 auto;padding:10px 16px 28px}
 
 /* Cabecera */
 .barra{display:flex;justify-content:space-between;align-items:center}
 .redondo{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--hueco)}
 .redondo svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .redondo:active{transform:scale(.94)}
+/* Desplegables colgados de su propio botón (idioma y tema) */
+.conTema,.conIdioma{position:relative;z-index:6}
+.menuTema,.menuIdioma{position:absolute;right:0;top:calc(100% + 8px);padding:6px;border-radius:14px;
+  background:var(--papel);color:var(--tintaPapel);box-shadow:0 12px 30px rgba(8,24,29,.38);
+  transform-origin:top right;animation:abreMenu .14s ease-out}
+.menuIdioma{right:auto;left:0;transform-origin:top left}
+.menuTema[hidden],.menuIdioma[hidden]{display:none}
+@keyframes abreMenu{from{opacity:0;transform:scale(.88) translateY(-8px)}to{opacity:1;transform:none}}
+.menuTema button,.menuIdioma button{display:flex;align-items:center;gap:11px;width:100%;padding:11px 14px 11px 11px;border-radius:9px;
+  font-weight:600;font-size:.95rem;color:var(--tintaPapel);white-space:nowrap;text-align:left}
+.menuTema button[aria-checked="true"],.menuIdioma button[aria-checked="true"]{background:rgba(20,50,58,.11)}
+.menuTema button:active,.menuIdioma button:active{background:rgba(20,50,58,.2)}
+.menuTema svg,.menuIdioma svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 h1,.sub,.filtros{position:relative;z-index:1}
 h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);line-height:.9;margin:14px 0 0;letter-spacing:-.01em}
 .sub{margin:8px 0 0;color:var(--suave);font-size:1.05rem;font-weight:500}
@@ -90,6 +103,13 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 :root[data-tema="noche"] .lampara{display:block}
 @keyframes lava{0%,100%{filter:drop-shadow(0 0 14px rgba(214,60,190,.45)) drop-shadow(0 3px 2px rgba(0,0,0,.5))}
   50%{filter:drop-shadow(0 0 26px rgba(232,84,150,.75)) drop-shadow(0 3px 2px rgba(0,0,0,.5))}}
+
+/* El meeple que cae sobre el título */
+.meeple{position:absolute;left:0;top:0;z-index:2;opacity:0;cursor:pointer;will-change:transform;
+  transform-origin:50% 50%;-webkit-touch-callout:none}
+.meeple.vivo{opacity:1}
+.meepleCuerpo{height:100%;transform-origin:50% 100%}
+.meeple svg{display:block;height:100%;width:auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 
 /* Estantería */
 .estante{display:grid;grid-template-columns:1fr 1fr;border-inline:11px solid var(--madera2);border-top:11px solid var(--madera2);
@@ -144,9 +164,6 @@ dialog::backdrop{background:rgba(8,24,29,.6)}
 .vent h2{font-family:var(--titulo);font-weight:400;font-size:1.7rem;line-height:1;margin:0 0 14px}
 .vent p{margin:0 0 10px;font-size:.95rem;line-height:1.45;user-select:text;-webkit-user-select:text}
 .vent .ver{opacity:.65;font-size:.85rem}
-.idiomas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.idiomas button{padding:13px 10px;border-radius:10px;background:rgba(20,50,58,.09);font-weight:600;color:var(--tintaPapel)}
-.idiomas button[aria-current="true"]{background:#14323a;color:#fbf6e9}
 .cerrar{display:block;width:100%;margin-top:14px;padding:13px;border-radius:10px;background:#14323a;color:#fbf6e9;font-weight:700}
 
 /* Visor: el contador abierto dentro de la Ludoteca */
@@ -179,14 +196,21 @@ body.conVisor{overflow:hidden}
 <body>
 <div class="app">
   <div class="barra">
-    <button class="redondo" id="bIdioma" type="button">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.400 5.800 12 3z"/></svg>
-    </button>
-    <button class="redondo" id="bTema" type="button"></button>
+    <div class="conIdioma">
+      <button class="redondo" id="bIdioma" type="button" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.400 5.800 12 3z"/></svg>
+      </button>
+      <div class="menuIdioma" id="menuIdioma" role="menu" hidden></div>
+    </div>
+    <div class="conTema">
+      <button class="redondo" id="bTema" type="button" aria-haspopup="true" aria-expanded="false"></button>
+      <div class="menuTema" id="menuTema" role="menu" hidden></div>
+    </div>
   </div>
   <h1 id="titulo"></h1>
   <p class="sub" id="sub"></p>
   <div class="filtros" id="filtros"></div>
+  <div class="meeple" id="meeple" aria-hidden="true"><div class="meepleCuerpo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="15.5 20 77.5 89.6"><defs><linearGradient id="mpG0" x1="10.48" y1="57.29" x2="57.6" y2="105.23" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#00d62d"/><stop offset="1" stop-color="#226631"/></linearGradient><linearGradient id="mpG1" x1="104.82" y1="50.07" x2="75.76" y2="66.63" xlink:href="#mpG0"/><linearGradient id="mpG2" x1="20.62" y1="13.09" x2="44.82" y2="58.71" xlink:href="#mpG0"/><linearGradient id="mpG3" x1="89.81" y1="110.96" x2="70.13" y2="90.93" xlink:href="#mpG0"/><linearGradient id="mpG4" x1="67.51" y1="54.14" x2="4.3" y2="170.84" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#00fb35"/><stop offset="1" stop-color="#1d7831"/></linearGradient><linearGradient id="mpG5" x1=".95" y1="72.69" x2="44.02" y2="64.12" xlink:href="#mpG0"/></defs><path fill="url(#mpG0)" d="M54.43,97.2l-1.4,3.26-3.68.49c-3.07.41-6.85-2.03-7.01-6.09,0-.35-.04-3.11-.09-6.93,0-.64-.02-1.3-.03-1.99,0-.34,0-.7-.01-1.05,0-.71-.02-1.44-.03-2.19-.02-1.12-.03-2.27-.05-3.43-.01-.78-.02-1.56-.03-2.34,0-.39-.01-.78-.02-1.17-.05-3.49-.09-6.9-.13-9.67l-7.26,8.34c.14,9.83.38,27.82.39,28.77.16,4.06,3.94,6.5,7.01,6.09l7.58-1s2.13-.23,3.05-.34c.93-.12,2.22-1.04,2.91-1.85.68-.81,5.6-8.89,5.6-8.89h-6.8Z"/><g><path fill="url(#mpG1)" d="M83.58,66.88l7.26-8.34c-.64.74-1.57,1.25-2.67,1.39l-12.3,1.67-7.26,8.34,12.3-1.67c1.09-.15,2.02-.65,2.67-1.39Z"/><path fill="url(#mpG2)" d="M35.44,57.04l7.26-8.34c-3.47-2.48-6.21-6.08-7.43-10.27-1.51-5.17-.4-10.08,2.55-13.46l-7.26,8.34c-2.95,3.38-4.06,8.3-2.55,13.46,1.23,4.19,3.96,7.79,7.43,10.27Z"/><path fill="url(#mpG3)" d="M88.64,95.75l-7.58,1c-2.78.37-5.77-.99-7.6-3.45l-4.21-5.67c-1.03-1.39-2.58-1.95-3.91-1.77-.75.1-1.44.44-1.92.99l-7.26,8.34c.48-.55,1.17-.89,1.92-.99,1.33-.18,2.88.38,3.91,1.77l4.21,5.67c1.82,2.45,4.82,3.81,7.6,3.45l7.58-1c1.14-.15,2.16-.69,2.87-1.51l7.26-8.34c-.71.82-1.73,1.36-2.87,1.51Z"/></g><path fill="url(#mpG4)" d="M46.27,20.57c8.62-1.14,17.67,5.01,20.22,13.73,1.23,4.19.72,8.22-1.09,11.4l21.91,4.9c2.14.48,4.05,2.31,4.43,4.61.4,2.41-1.2,4.41-3.57,4.73l-12.3,1.67c5.41,9.13,15.31,25.84,15.83,26.72,2.15,3.8.01,7.02-3.06,7.42l-7.58,1c-2.78.37-5.77-.99-7.6-3.45l-4.21-5.67c-1.03-1.39-2.58-1.95-3.91-1.77-1.33.18-2.45,1.09-2.62,2.64l-.71,6.32c-.31,2.74-2.31,4.76-5.09,5.13l-7.58,1c-3.07.41-6.85-2.03-7.01-6.09-.01-.95-.25-18.94-.39-28.77l-12.32,1.59c-2.37.31-4.97-1.14-5.95-3.47-.95-2.22-.2-4.4,1.5-5.39l17.52-10.12c-3.47-2.48-6.21-6.08-7.43-10.27-2.55-8.72,2.37-16.72,10.99-17.86Z"/><path fill="url(#mpG5)" d="M41.95,66.09l-12.32,1.59c-2.37.31-4.97-1.14-5.95-3.47-.74-1.75-.44-3.47.55-4.6l-7.26,8.34c-.99,1.14-1.29,2.86-.55,4.6.99,2.33,3.59,3.77,5.95,3.47l12.32-1.59,7.26-8.34h0Z"/></svg></div></div>
   <div class="mueble">
     <div class="adorno cactus" aria-hidden="true">
       <img src="cactus.webp" alt="">
@@ -207,7 +231,6 @@ body.conVisor{overflow:hidden}
   <div class="pie"><button type="button" id="bLegal"></button></div>
 </div>
 
-<dialog id="dIdioma"><div class="vent"><h2 id="tIdioma"></h2><div class="idiomas" id="listaIdiomas"></div></div></dialog>
 <dialog id="dLegal"><div class="vent"><h2 id="tLegal"></h2><div id="textoLegal"></div><button class="cerrar" type="button" id="bCerrar"></button></div></dialog>
 <div class="visor" id="visor">
   <div class="visorBarra"><button type="button" id="bVolver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5.500L4.500 12l6.500 6.500"/></svg><span id="tVolver"></span></button></div>
@@ -257,42 +280,42 @@ const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:
 const T = {
   es:{ volver:'Volver a LudoTech', titulo:'LudoTech', sub:'Espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
     libre:'Partidas sin límite', prueba1:'1 partida de prueba', pruebaN:'{n} partidas de prueba', conClave:'Clave activada', pronto:'Llegará pronto',
-    aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', cerrar:'Cerrar', gira:'Gira el móvil',
+    aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', tema:'Tema', cerrar:'Cerrar', gira:'Gira el móvil',
     tAuto:'Automático', tDia:'Modo día', tNoche:'Modo noche', abrir:'Abrir el contador de {j}',
     textoLegal:['LudoTech reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
       'No están afiliados, patrocinados ni aprobados por los autores ni por las editoriales de los juegos. Los nombres de los juegos son marcas de sus respectivos propietarios.',
       'Para jugar necesitas un ejemplar de cada juego. Las claves de licencia dan acceso a los contadores, no a los juegos.'] },
   ca:{ volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
     libre:'Partides sense límit', prueba1:'1 partida de prova', pruebaN:'{n} partides de prova', conClave:'Clau activada', pronto:'Arribarà aviat',
-    aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', cerrar:'Tanca', gira:'Gira el mòbil',
+    aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', tema:'Tema', cerrar:'Tanca', gira:'Gira el mòbil',
     tAuto:'Automàtic', tDia:'Mode dia', tNoche:'Mode nit', abrir:'Obre el comptador de {j}',
     textoLegal:['LudoTech aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
       'No estan afiliats, patrocinats ni aprovats pels autors ni per les editorials dels jocs. Els noms dels jocs són marques dels seus propietaris respectius.',
       'Per jugar necessites un exemplar de cada joc. Les claus de llicència donen accés als comptadors, no als jocs.'] },
   en:{ volver:'Back to LudoTech', titulo:'LudoTech', sub:'A home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
     libre:'Unlimited games', prueba1:'1 trial game', pruebaN:'{n} trial games', conClave:'Key activated', pronto:'Coming soon',
-    aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', cerrar:'Close', gira:'Rotate your phone',
+    aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', tema:'Theme', cerrar:'Close', gira:'Rotate your phone',
     tAuto:'Automatic', tDia:'Day mode', tNoche:'Night mode', abrir:'Open the {j} counter',
     textoLegal:['LudoTech gathers the unofficial score counters created independently by PenTech.',
       'They are not affiliated with, sponsored or endorsed by the designers or publishers of the games. Game names are trademarks of their respective owners.',
       'You need a copy of each game to play. Licence keys give access to the counters, not to the games.'] },
   fr:{ volver:'Retour à LudoTech', titulo:'LudoTech', sub:'L’espace de vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
     libre:'Parties illimitées', prueba1:'1 partie d’essai', pruebaN:'{n} parties d’essai', conClave:'Clé activée', pronto:'Bientôt disponible',
-    aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', cerrar:'Fermer', gira:'Tournez le téléphone',
+    aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', tema:'Thème', cerrar:'Fermer', gira:'Tournez le téléphone',
     tAuto:'Automatique', tDia:'Mode jour', tNoche:'Mode nuit', abrir:'Ouvrir le compteur de {j}',
     textoLegal:['LudoTech rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
       'Ils ne sont ni affiliés, ni sponsorisés, ni approuvés par les auteurs ou les éditeurs des jeux. Les noms des jeux sont des marques de leurs propriétaires respectifs.',
       'Pour jouer, il vous faut un exemplaire de chaque jeu. Les clés de licence donnent accès aux compteurs, pas aux jeux.'] },
   de:{ volver:'Zurück zu LudoTech', titulo:'LudoTech', sub:'Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
     libre:'Unbegrenzt spielen', prueba1:'1 Testpartie', pruebaN:'{n} Testpartien', conClave:'Schlüssel aktiviert', pronto:'Kommt bald',
-    aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', cerrar:'Schließen', gira:'Handy drehen',
+    aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', tema:'Darstellung', cerrar:'Schließen', gira:'Handy drehen',
     tAuto:'Automatisch', tDia:'Heller Modus', tNoche:'Dunkler Modus', abrir:'Zähler für {j} öffnen',
     textoLegal:['LudoTech versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
       'Sie stehen in keiner Verbindung zu den Autoren oder Verlagen der Spiele und werden von ihnen weder gesponsert noch unterstützt. Die Spielenamen sind Marken ihrer jeweiligen Inhaber.',
       'Zum Spielen brauchst du ein Exemplar des jeweiligen Spiels. Lizenzschlüssel geben Zugang zu den Zählern, nicht zu den Spielen.'] },
   it:{ volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
     libre:'Partite senza limite', prueba1:'1 partita di prova', pruebaN:'{n} partite di prova', conClave:'Chiave attivata', pronto:'In arrivo',
-    aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', cerrar:'Chiudi', gira:'Ruota il telefono',
+    aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', tema:'Tema', cerrar:'Chiudi', gira:'Ruota il telefono',
     tAuto:'Automatico', tDia:'Modalità giorno', tNoche:'Modalità notte', abrir:'Apri il contatore di {j}',
     textoLegal:['LudoTech riunisce i contatori di punti non ufficiali creati in modo indipendente da PenTech.',
       'Non sono affiliati, sponsorizzati né approvati dagli autori o dagli editori dei giochi. I nomi dei giochi sono marchi dei rispettivi proprietari.',
@@ -335,14 +358,35 @@ let modo = mem.leer('ludoteca-tema');
 if (!MODOS.includes(modo)) modo = 'auto';
 const oscuroMovil = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
 let tema = 'dia';                               // el modo que se está viendo ahora
-const nombreModo = () => t(modo === 'auto' ? 'tAuto' : modo === 'noche' ? 'tNoche' : 'tDia');
+const nombreModo = (m) => t((m || modo) === 'auto' ? 'tAuto' : (m || modo) === 'noche' ? 'tNoche' : 'tDia');
+const iconoModo = m => m === 'auto' ? AUTO : m === 'noche' ? LUNA : SOL;
+function pintarMenuTema(){
+  $('menuTema').innerHTML = MODOS.map(m =>
+    '<button type="button" role="menuitemradio" data-m="'+m+'" aria-checked="'+(m===modo)+'">'+
+    iconoModo(m)+'<span>'+nombreModo(m)+'</span></button>').join('');
+}
+/* Los dos desplegables de la barra: solo puede haber uno abierto a la vez. */
+const MENUS = { menuTema:'bTema', menuIdioma:'bIdioma' };
+function cerrarMenu(id){ $(id).hidden = true; $(MENUS[id]).setAttribute('aria-expanded', false); }
+function cerrarMenus(){ for (const id in MENUS) cerrarMenu(id); }
+function abrirMenu(id, abrir){
+  const m = $(id);
+  if (abrir === undefined) abrir = m.hidden;
+  cerrarMenus();
+  if (abrir){ m.hidden = false; $(MENUS[id]).setAttribute('aria-expanded', true); }
+}
+function pintarMenuIdioma(){
+  $('menuIdioma').innerHTML = Object.keys(IDIOMAS).map(c =>
+    '<button type="button" role="menuitemradio" data-l="'+c+'" aria-checked="'+(c===idioma)+'">'+
+    '<span>'+IDIOMAS[c]+'</span></button>').join('');
+}
 function aplicarTema(){
   tema = modo === 'auto' ? (oscuroMovil && oscuroMovil.matches ? 'noche' : 'dia') : modo;
   document.documentElement.dataset.tema = tema;
   document.querySelector('meta[name="theme-color"]').content = tema === 'noche' ? '#102a31' : '#cfe3e6';
   // El icono indica el estado actual: medio círculo, sol o luna.
-  $('bTema').innerHTML = modo === 'auto' ? AUTO : modo === 'noche' ? LUNA : SOL;
-  $('bTema').setAttribute('aria-label', nombreModo());
+  $('bTema').innerHTML = iconoModo(modo);
+  $('bTema').setAttribute('aria-label', t('tema') + ': ' + nombreModo());
 }
 
 /* ---------- Licencias ---------- */
@@ -394,15 +438,13 @@ function aplicarIdioma(){
   $('sub').textContent = t('sub');
   $('bLegal').textContent = t('legal') + ' · ' + VERSION;
   $('bIdioma').setAttribute('aria-label', t('idioma'));
-  $('tIdioma').textContent = t('idioma');
   $('tLegal').textContent = t('legal');
   $('bCerrar').textContent = t('cerrar');
   $('gira').textContent = t('gira');
   $('tVolver').textContent = t('volver');
   $('textoLegal').innerHTML = T[idioma].textoLegal.map(p => '<p>'+esc(p)+'</p>').join('') +
     '<p class="ver">LudoTech · PenTech · '+VERSION+'</p>';
-  $('listaIdiomas').innerHTML = Object.keys(IDIOMAS).map(c =>
-    '<button type="button" data-l="'+c+'" aria-current="'+(c===idioma)+'">'+IDIOMAS[c]+'</button>').join('');
+  pintarMenuTema(); pintarMenuIdioma();
   pintarFiltros(); pintarEstante(); aplicarTema();
 }
 
@@ -461,18 +503,22 @@ $('filtros').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   filtro = b.dataset.f; pintarFiltros(); pintarEstante();
 });
-$('bTema').addEventListener('click', () => {
-  modo = MODOS[(MODOS.indexOf(modo) + 1) % MODOS.length];
-  mem.guardar('ludoteca-tema', modo);
-  aplicarTema(); avisar(nombreModo());
+$('bTema').addEventListener('click', e => { e.stopPropagation(); abrirMenu('menuTema'); });
+$('menuTema').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  modo = b.dataset.m; mem.guardar('ludoteca-tema', modo);
+  cerrarMenus(); aplicarTema(); pintarMenuTema();
 });
+document.addEventListener('click', cerrarMenus);                          // tocar fuera los cierra
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarMenus(); });
 // En automático, si el móvil cambia de modo la app cambia al momento.
 if (oscuroMovil && oscuroMovil.addEventListener)
   oscuroMovil.addEventListener('change', () => { if (modo === 'auto') aplicarTema(); });
-$('bIdioma').addEventListener('click', () => $('dIdioma').showModal());
-$('listaIdiomas').addEventListener('click', e => {
+$('bIdioma').addEventListener('click', e => { e.stopPropagation(); abrirMenu('menuIdioma'); });
+$('menuIdioma').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  idioma = b.dataset.l; mem.guardar('ludoteca-idioma', idioma); aplicarIdioma(); $('dIdioma').close();
+  idioma = b.dataset.l; mem.guardar('ludoteca-idioma', idioma);
+  cerrarMenus(); aplicarIdioma();
 });
 $('bLegal').addEventListener('click', () => $('dLegal').showModal());
 $('bCerrar').addEventListener('click', () => $('dLegal').close());
@@ -522,6 +568,106 @@ const quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)
   }
   setTimeout(visita, azar(2500, 6000));
 })();
+
+/* ---------- El meeple que cae sobre el título ----------
+   Física de verdad: gravedad, rebotes que pierden fuerza, rozamiento y volteretas.
+   El recorrido se mide sobre el ancho real del título, así vale en cualquier pantalla. */
+const FIS = { g:2800, rebote:.52, roce:.86, giro:.58, alto:.56 };
+let relojMeeple = 0, altoMeeple = 40, anchoMeeple = 35;
+
+function sitioTitulo(){
+  const h = $('titulo'), app = document.querySelector('.app');
+  const rh = h.getBoundingClientRect(), ra = app.getBoundingClientRect();
+  const rg = document.createRange(); rg.selectNodeContents(h);
+  const rt = rg.getBoundingClientRect();
+  const F = parseFloat(getComputedStyle(h).fontSize);
+  return { suelo: rh.top - ra.top + .115 * F,        // la raya por donde bota: justo encima de las letras
+           izq: rt.left - ra.left, ancho: rt.width, F };
+}
+
+// Centro de una letra del título, para apoyar el meeple justo encima de ella
+function letraX(i){
+  const n = $('titulo').firstChild;
+  if (!n || n.nodeType !== 3 || i >= n.length) return null;
+  const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
+  const r = rg.getBoundingClientRect(), a = document.querySelector('.app').getBoundingClientRect();
+  return r.left - a.left + r.width / 2;
+}
+
+function ponMeeple(x, base, ang, aplasta){
+  const el = $('meeple');
+  el.style.transform = 'translate(' + (x - anchoMeeple / 2).toFixed(1) + 'px,' + (base - altoMeeple).toFixed(1) + 'px)' +
+    ' rotate(' + ang.toFixed(1) + 'deg)';
+  el.firstElementChild.style.transform = 'scale(' + (1 + aplasta * .45).toFixed(3) + ',' + (1 - aplasta).toFixed(3) + ')';
+}
+
+function tiraMeeple(){
+  const el = $('meeple'); if (!el) return;
+  cancelAnimationFrame(relojMeeple);
+  const { suelo, izq, ancho, F } = sitioTitulo();
+  altoMeeple = Math.max(26, Math.round(FIS.alto * F));
+  anchoMeeple = altoMeeple * .865;
+  el.style.height = altoMeeple + 'px';
+  el.classList.add('vivo');
+
+  const xCae = letraX(7) || izq + .88 * ancho;   // cae sobre la h, que es alta y hace de suelo
+  const xFin = letraX(2) || izq + .22 * ancho;   // acaba de pie sobre la d, también alta
+  if (quieto){ ponMeeple(xFin, suelo, 0, 0); return; }   // si el móvil pide no moverse, directo al final
+
+  const PARA = 34;                           // por debajo de esta velocidad ya no bota más
+  let base = -altoMeeple * 1.2, x = xCae, vy = 0, vx = 0, ang = -22, w = -660, aplasta = 0, botes = 0;
+
+  // cuánto recorre en total por cada px/s de velocidad horizontal; de ahí sale la que hace falta
+  let vb = Math.sqrt(2 * FIS.g * (suelo - base)), reparto = 0, r = 1;
+  for (let i = 0; i < 14; i++){
+    vb *= FIS.rebote; if (vb < PARA) break;
+    reparto += (2 * vb / FIS.g) * r; r *= FIS.roce;
+  }
+  const vxPrimero = reparto > 0 ? (xCae - xFin) / reparto : 0;
+
+  // La física va a pasos fijos y cortos: así el recorrido sale igual aunque el móvil vaya a tirones.
+  const PASO = 1 / 240;
+  let resto = 0, antes = 0, fin = false;
+  function tic(){
+    vy += FIS.g * PASO; base += vy * PASO; x += vx * PASO; ang += w * PASO;
+    aplasta = Math.max(0, aplasta - PASO * 6);
+    if (base >= suelo){                      // toca las letras
+      base = suelo; vy = -vy * FIS.rebote; botes++;
+      aplasta = Math.min(.3, Math.abs(vy) / 900);
+      vx = botes === 1 ? -vxPrimero : vx * FIS.roce;   // la voltereta lo impulsa hacia la izquierda
+      w *= FIS.giro;
+      if (Math.abs(vy) < PARA || botes > 13) fin = true;
+    }
+  }
+  function paso(ts){
+    if (!antes) antes = ts;
+    resto += Math.min(.25, (ts - antes) / 1000); antes = ts;
+    while (resto >= PASO && !fin){ tic(); resto -= PASO; }
+    if (fin){ deJaDePie(x, suelo, ang); return; }
+    ponMeeple(x, base, ang, aplasta);
+    relojMeeple = requestAnimationFrame(paso);
+  }
+  relojMeeple = requestAnimationFrame(paso);
+}
+
+function deJaDePie(x, suelo, ang){          // se endereza con un último golpe de riñón
+  const desde = ang, hasta = Math.round(ang / 360) * 360, t0 = performance.now();
+  (function gira(ts){
+    const k = Math.min(1, (ts - t0) / 430), e = 1 - Math.pow(1 - k, 3);
+    ponMeeple(x, suelo - Math.sin(k * Math.PI) * altoMeeple * .07, desde + (hasta - desde) * e, 0);
+    if (k < 1) relojMeeple = requestAnimationFrame(gira);
+  })(performance.now());
+}
+
+$('meeple').addEventListener('click', e => { e.stopPropagation(); tiraMeeple(); });   // tocarlo lo lanza otra vez
+addEventListener('resize', () => {          // al girar o cambiar de tamaño, se queda de pie en su sitio
+  cancelAnimationFrame(relojMeeple); relojMeeple = 0;
+  const { suelo, izq, ancho } = sitioTitulo();
+  ponMeeple(letraX(2) || izq + .22 * ancho, suelo, 0, 0);
+});
+// se espera a que cargue la tipografía: si no, el título aún no mide lo que medirá
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(tiraMeeple, 260));
+else setTimeout(tiraMeeple, 500);
 
 aplicarIdioma();
 
