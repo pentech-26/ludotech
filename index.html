@@ -109,17 +109,17 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
   transform-origin:50% 50%;-webkit-touch-callout:none}
 .meeple.vivo{opacity:1}
 .meepleCuerpo{height:100%;transform-origin:50% 100%}
-.meeple svg{display:block;height:100%;width:auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
-/* El bocadillo de cómic que suelta el meeple */
-.bocadillo{position:absolute;z-index:3;padding:7px 13px 8px;border-radius:16px 16px 16px 4px;
-  background:#fff;color:#14323a;border:3px solid #14323a;box-shadow:3px 3px 0 rgba(20,50,58,.22);
-  font-family:var(--titulo);font-weight:400;font-size:.95rem;line-height:1;white-space:nowrap;
-  pointer-events:none;opacity:0;transform:scale(.3);transform-origin:left bottom;
-  transition:opacity .13s ease-out,transform .26s cubic-bezier(.25,1.7,.5,1)}
+.meeple svg{display:block;height:100%;width:auto;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.32))}
+/* El bocadillo de cómic que suelta el meeple. El dibujo es globo.svg; el texto va dentro del óvalo.
+   La punta del rabito cae en el 25% / 76% del recuadro: ahí se apunta a la cabeza del meeple. */
+.bocadillo{position:absolute;z-index:3;pointer-events:none;
+  background:url(globo.svg) no-repeat center/100% 100%;
+  opacity:0;transform:scale(.25);transform-origin:25% 76%;
+  transition:opacity .14s ease-out,transform .3s cubic-bezier(.25,1.75,.5,1)}
 .bocadillo.ver{opacity:1;transform:scale(1)}
-.bocadillo::after{content:"";position:absolute;left:7px;bottom:-10px;width:15px;height:15px;background:#fff;
-  border-right:3px solid #14323a;border-bottom:3px solid #14323a;border-bottom-right-radius:3px;
-  transform:rotate(57deg) skewX(-12deg)}
+.bocadillo span{position:absolute;left:7%;top:18%;width:71%;height:32%;
+  display:grid;place-items:center;text-align:center;line-height:1;white-space:nowrap;
+  font-family:var(--titulo);color:#231f20}
 
 /* Estantería */
 .estante{display:grid;grid-template-columns:1fr 1fr;border-inline:11px solid var(--madera2);border-top:11px solid var(--madera2);
@@ -245,7 +245,7 @@ body.conVisor{overflow:hidden}
 <div class="visor" id="visor">
   <div class="visorBarra"><button type="button" id="bVolver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5.500L4.500 12l6.500 6.500"/></svg><span id="tVolver"></span></button></div>
 </div>
-<div class="bocadillo" id="bocadillo" aria-hidden="true"></div>
+<div class="bocadillo" id="bocadillo" aria-hidden="true"><span id="bocadilloTexto"></span></div>
 <div class="aviso" id="aviso" role="status"></div>
 <div class="gira" id="gira"></div>
 
@@ -607,9 +607,11 @@ function letraX(i){
   return r.left - a.left + r.width / 2;
 }
 
+const PISADA = .054;   // lo que sobra de caja por debajo de la cara frontal del meeple
+const PATAS  = .083;   // desvío del punto medio entre las patas respecto al centro de la caja
 function ponMeeple(x, base, ang, aplasta){
   const el = $('meeple');
-  el.style.transform = 'translate(' + (x - anchoMeeple / 2).toFixed(1) + 'px,' + (base - altoMeeple).toFixed(1) + 'px)' +
+  el.style.transform = 'translate(' + (x - anchoMeeple / 2).toFixed(1) + 'px,' + (base + altoMeeple * PISADA - altoMeeple).toFixed(1) + 'px)' +
     ' rotate(' + ang.toFixed(1) + 'deg)';
   el.firstElementChild.style.transform = 'scale(' + (1 + aplasta * .45).toFixed(3) + ',' + (1 - aplasta).toFixed(3) + ')';
 }
@@ -625,7 +627,7 @@ function tiraMeeple(){
   el.classList.add('vivo');
 
   const xCae = letraX(7) || izq + .88 * ancho;   // cae sobre la h, que es alta y hace de suelo
-  const xFin = letraX(1) || izq + .13 * ancho;   // acaba sobre la u, un pie en cada palo
+  const xFin = (letraX(1) || izq + .13 * ancho) - PATAS * anchoMeeple;   // sobre la u, un pie en cada palo
   if (quieto){ posaMeeple(xFin, suelo + aLaU, 0); return; }   // si el móvil pide no moverse, directo al final
 
   const PARA = 34;                           // por debajo de esta velocidad ya no bota más
@@ -683,7 +685,7 @@ function posaMeeple(x, base, ang){          // ya está quieto: a partir de aqu�
 }
 
 /* Cada cierto rato se estremece y suelta un «hola» en el idioma de la app. */
-const CADA = 3000;
+const CADA = 8500;          // temblor (0,5 s) + saludo (5 s) + respiro (3 s)
 function tiembla(){
   if (!sitioQuieto || quieto || document.hidden) return;
   const { x, base, ang } = sitioQuieto, t0 = performance.now();
@@ -696,15 +698,21 @@ function tiembla(){
     requestAnimationFrame(sacude);
   })(performance.now());
 }
+const VISIBLE = 5000;                       // lo que se queda el saludo en pantalla
 function diHola(){
   if (!sitioQuieto) return;
   const bo = $('bocadillo');
-  bo.textContent = t('hola');
-  bo.style.left = (sitioQuieto.x + anchoMeeple * .45).toFixed(1) + 'px';
-  bo.style.top = (sitioQuieto.base - altoMeeple - 28).toFixed(1) + 'px';
+  $('bocadilloTexto').textContent = t('hola');
+  const W = Math.round(2.05 * altoMeeple), H = Math.round(W * 139.23 / 149.53);
+  bo.style.width = W + 'px'; bo.style.height = H + 'px';
+  bo.style.fontSize = (W * .175).toFixed(1) + 'px';
+  const cabezaX = sitioQuieto.x + anchoMeeple * .45;          // hacia dónde apunta el rabito
+  const cabezaY = sitioQuieto.base - altoMeeple * .88;
+  bo.style.left = (cabezaX - .25 * W).toFixed(1) + 'px';
+  bo.style.top = (cabezaY - .76 * H).toFixed(1) + 'px';
   bo.classList.add('ver');
   clearTimeout(relojHola);
-  relojHola = setTimeout(() => bo.classList.remove('ver'), 1700);
+  relojHola = setTimeout(() => bo.classList.remove('ver'), VISIBLE);
 }
 
 $('meeple').addEventListener('click', e => { e.stopPropagation(); tiraMeeple(); });   // tocarlo lo lanza otra vez
@@ -712,7 +720,7 @@ addEventListener('resize', () => {          // al girar o cambiar de tamaño, se
   cancelAnimationFrame(relojMeeple); relojMeeple = 0;
   const { suelo, izq, ancho, aLaU } = sitioTitulo();
   $('bocadillo').classList.remove('ver');
-  posaMeeple(letraX(1) || izq + .13 * ancho, suelo + aLaU, 0);
+  posaMeeple((letraX(1) || izq + .13 * ancho) - PATAS * anchoMeeple, suelo + aLaU, 0);
 });
 setInterval(tiembla, CADA);
 // se espera a que cargue la tipografía: si no, el título aún no mide lo que medirá
