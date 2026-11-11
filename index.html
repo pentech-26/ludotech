@@ -192,6 +192,31 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 .ficha small{display:block;font-size:.8rem;line-height:1.2;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .caja.vacia .hueco{min-height:0}
 .caja.vacia .balda{flex:none}
+/* El hueco libre: una caja de cartón kraft recién llegada, con su etiqueta de envío y un «?» */
+.frente.kraft{border-radius:3px 3px 2px 2px;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,0) 0 19%,rgba(70,40,10,.28) 19% 19.8%,rgba(255,240,210,.18) 19.8% 20.6%,rgba(0,0,0,0) 20.6%),
+    linear-gradient(90deg,rgba(0,0,0,0) 0 41%,rgba(214,182,128,.92) 41% 59%,rgba(0,0,0,0) 59%) top/100% 34% no-repeat,
+    repeating-linear-gradient(97deg,rgba(90,55,20,.05) 0 1px,rgba(0,0,0,0) 1px 4px),
+    repeating-linear-gradient(8deg,rgba(255,235,200,.05) 0 2px,rgba(0,0,0,0) 2px 7px),
+    linear-gradient(160deg,#cfa46c,#b8874f 55%,#a5763f)}
+.frente.kraft::before{content:"";position:absolute;left:41%;width:18%;top:0;height:34%;z-index:1;   /* brillo de la cinta */
+  background:linear-gradient(90deg,rgba(255,255,255,.28),rgba(255,255,255,0) 45%,rgba(0,0,0,.08));
+  border-bottom:1px solid rgba(120,80,30,.35)}
+.etiqueta{position:absolute;z-index:2;left:15%;right:15%;top:36%;bottom:10%;transform:rotate(-4deg);
+  background:#fbf6ea;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.05);
+  display:flex;flex-direction:column;align-items:stretch;padding:4cqi 5cqi 4cqi;color:#2a2018;font-size:6.2cqi;line-height:1.15}
+.etiqueta i{display:block;font-style:normal;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.etiqueta i + i{font-weight:500;opacity:.75}
+.etiqueta b{flex:1;display:grid;place-items:center;font-family:var(--titulo);font-weight:400;font-size:30cqi;line-height:.9;color:#c8372d;
+  margin:0;text-shadow:0 1px 0 rgba(0,0,0,.08)}
+.etiqueta s{display:block;height:9cqi;text-decoration:none;
+  background:repeating-linear-gradient(90deg,#2a2018 0 1.5px,transparent 1.5px 3px,#2a2018 3px 5px,transparent 5px 6.5px,#2a2018 6.5px 7.5px,transparent 7.5px 10px)}
+.flechas{position:absolute;z-index:1;left:6%;bottom:6%;font-size:8cqi;font-weight:700;letter-spacing:-.1em;color:rgba(60,35,10,.5)}
+.caja.misterio .frente::after{opacity:.8}
+.caja.misterio.agita .frente{animation:agita .55s ease-in-out}
+@keyframes agita{0%,100%{transform:none}20%{transform:translateY(-5px) rotate(-3deg)}40%{transform:translateY(-2px) rotate(3deg)}
+  60%{transform:translateY(-4px) rotate(-2deg)}80%{transform:translateY(-1px) rotate(1deg)}}
 
 /* Pie */
 .pie{margin-top:26px;text-align:center}
@@ -324,48 +349,51 @@ const CATALOGO = [
     c1:'#8c2433', c2:'#5e1522', ct:'#e9c46a', franja:'#f9e3e6' },
   { id:'7-wonders', nombre:'7 Wonders', pago:true, prueba:3, lic:{ clave:'sw7-lic-v2' },
     url:'https://pentech-26.github.io/7-Wonders-Contador/', icono:'https://pentech-26.github.io/7-Wonders-Contador/icon-192.png',
-    c1:'#2a5f8f', c2:'#173d63', ct:'#f2d27a', franja:'#0f1a2e' }
+    c1:'#2a5f8f', c2:'#173d63', ct:'#f2d27a', franja:'#0f1a2e' },
+  { id:'agricola', nombre:'Agricola', pago:true, prueba:3, lic:{ clave:'agricola-licencia-v1', valor:'true' },
+    url:'https://pentech-26.github.io/Agricola-contador/', icono:'https://pentech-26.github.io/Agricola-contador/icon-192.png',
+    c1:'#5c8a3c', c2:'#35603a', ct:'#f3e2b0', franja:'#35603a' }
 ];
 
 const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:'Deutsch', it:'Italiano' };
 
 const T = {
-  es:{ empieza:'Guarda el lápiz y toca para contar', hola:'¡HOLA!', volver:'Volver a LudoTech', titulo:'LudoTech', sub:'El espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
+  es:{ misterio:'Próximamente', secreto:'Contenido secreto', tramando:'Algo se está tramando… 🤫', envioDe:'De: PenTech', envioPara:'Para: ti', empieza:'Guarda el lápiz y toca para contar', hola:'¡HOLA!', volver:'Volver a LudoTech', titulo:'LudoTech', sub:'El espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
     libre:'Partidas sin límite', prueba1:'1 partida de prueba', pruebaN:'{n} partidas de prueba', conClave:'Clave activada', pronto:'Llegará pronto',
     aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', tema:'Tema', cerrar:'Cerrar', gira:'Gira el móvil',
     tAuto:'Automático', tDia:'Modo día', tNoche:'Modo noche', abrir:'Abrir el contador de {j}',
     textoLegal:['LudoTech reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
       'No están afiliados, patrocinados ni aprobados por los autores ni por las editoriales de los juegos. Los nombres de los juegos son marcas de sus respectivos propietarios.',
       'Para jugar necesitas un ejemplar de cada juego. Las claves de licencia dan acceso a los contadores, no a los juegos.'] },
-  ca:{ empieza:'Desa el llapis i toca per comptar', hola:'HOLA!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'L’espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
+  ca:{ misterio:'Properament', secreto:'Contingut secret', tramando:'S’està tramant alguna cosa… 🤫', envioDe:'De: PenTech', envioPara:'Per a: tu', empieza:'Desa el llapis i toca per comptar', hola:'HOLA!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'L’espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
     libre:'Partides sense límit', prueba1:'1 partida de prova', pruebaN:'{n} partides de prova', conClave:'Clau activada', pronto:'Arribarà aviat',
     aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', tema:'Tema', cerrar:'Tanca', gira:'Gira el mòbil',
     tAuto:'Automàtic', tDia:'Mode dia', tNoche:'Mode nit', abrir:'Obre el comptador de {j}',
     textoLegal:['LudoTech aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
       'No estan afiliats, patrocinats ni aprovats pels autors ni per les editorials dels jocs. Els noms dels jocs són marques dels seus propietaris respectius.',
       'Per jugar necessites un exemplar de cada joc. Les claus de llicència donen accés als comptadors, no als jocs.'] },
-  en:{ empieza:'Put the pencil down and tap to keep score', hola:'HI!', volver:'Back to LudoTech', titulo:'LudoTech', sub:'The home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
+  en:{ misterio:'Coming soon', secreto:'Secret contents', tramando:'Something’s brewing… 🤫', envioDe:'From: PenTech', envioPara:'To: you', empieza:'Put the pencil down and tap to keep score', hola:'HI!', volver:'Back to LudoTech', titulo:'LudoTech', sub:'The home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
     libre:'Unlimited games', prueba1:'1 trial game', pruebaN:'{n} trial games', conClave:'Key activated', pronto:'Coming soon',
     aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', tema:'Theme', cerrar:'Close', gira:'Rotate your phone',
     tAuto:'Automatic', tDia:'Day mode', tNoche:'Night mode', abrir:'Open the {j} counter',
     textoLegal:['LudoTech gathers the unofficial score counters created independently by PenTech.',
       'They are not affiliated with, sponsored or endorsed by the designers or publishers of the games. Game names are trademarks of their respective owners.',
       'You need a copy of each game to play. Licence keys give access to the counters, not to the games.'] },
-  fr:{ empieza:'Range ton crayon et touche pour compter', hola:'SALUT !', volver:'Retour à LudoTech', titulo:'LudoTech', sub:'L’espace pour vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
+  fr:{ misterio:'Bientôt', secreto:'Contenu secret', tramando:'Quelque chose se prépare… 🤫', envioDe:'De : PenTech', envioPara:'Pour : toi', empieza:'Range ton crayon et touche pour compter', hola:'SALUT !', volver:'Retour à LudoTech', titulo:'LudoTech', sub:'L’espace pour vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
     libre:'Parties illimitées', prueba1:'1 partie d’essai', pruebaN:'{n} parties d’essai', conClave:'Clé activée', pronto:'Bientôt disponible',
     aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', tema:'Thème', cerrar:'Fermer', gira:'Tournez le téléphone',
     tAuto:'Automatique', tDia:'Mode jour', tNoche:'Mode nuit', abrir:'Ouvrir le compteur de {j}',
     textoLegal:['LudoTech rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
       'Ils ne sont ni affiliés, ni sponsorisés, ni approuvés par les auteurs ou les éditeurs des jeux. Les noms des jeux sont des marques de leurs propriétaires respectifs.',
       'Pour jouer, il vous faut un exemplaire de chaque jeu. Les clés de licence donnent accès aux compteurs, pas aux jeux.'] },
-  de:{ empieza:'Stift weg – tippen und Punkte zählen', hola:'HALLO!', volver:'Zurück zu LudoTech', titulo:'LudoTech', sub:'Der Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
+  de:{ misterio:'Demnächst', secreto:'Geheimer Inhalt', tramando:'Da braut sich was zusammen … 🤫', envioDe:'Von: PenTech', envioPara:'An: dich', empieza:'Stift weg – tippen und Punkte zählen', hola:'HALLO!', volver:'Zurück zu LudoTech', titulo:'LudoTech', sub:'Der Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
     libre:'Unbegrenzt spielen', prueba1:'1 Testpartie', pruebaN:'{n} Testpartien', conClave:'Schlüssel aktiviert', pronto:'Kommt bald',
     aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', tema:'Darstellung', cerrar:'Schließen', gira:'Handy drehen',
     tAuto:'Automatisch', tDia:'Heller Modus', tNoche:'Dunkler Modus', abrir:'Zähler für {j} öffnen',
     textoLegal:['LudoTech versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
       'Sie stehen in keiner Verbindung zu den Autoren oder Verlagen der Spiele und werden von ihnen weder gesponsert noch unterstützt. Die Spielenamen sind Marken ihrer jeweiligen Inhaber.',
       'Zum Spielen brauchst du ein Exemplar des jeweiligen Spiels. Lizenzschlüssel geben Zugang zu den Zählern, nicht zu den Spielen.'] },
-  it:{ empieza:'Metti via la matita e tocca per contare', hola:'CIAO!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
+  it:{ misterio:'Prossimamente', secreto:'Contenuto segreto', tramando:'Qualcosa bolle in pentola… 🤫', envioDe:'Da: PenTech', envioPara:'Per: te', empieza:'Metti via la matita e tocca per contare', hola:'CIAO!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
     libre:'Partite senza limite', prueba1:'1 partita di prova', pruebaN:'{n} partite di prova', conClave:'Chiave attivata', pronto:'In arrivo',
     aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', tema:'Tema', cerrar:'Chiudi', gira:'Ruota il telefono',
     tAuto:'Automatico', tDia:'Modalità giorno', tNoche:'Modalità notte', abrir:'Apri il contatore di {j}',
@@ -384,8 +412,8 @@ const $ = id => document.getElementById(id);
 /* ---------- Idioma ---------- */
 function idiomaInicial(){
   // 1º lo elegido aquí; 2º lo elegido en algún contador; 3º el idioma del móvil; si no, inglés.
-  for (const k of ['ludoteca-idioma','catan-idioma','rw_idioma']){
-    const v = mem.leer(k);
+  for (const k of ['ludoteca-idioma','catan-idioma','rw_idioma','agricola-idioma']){
+    const v = (mem.leer(k) || '').replace(/^"|"$/g, '');   // Agricola lo guarda entre comillas (JSON)
     if (v && T[v]) return v;
   }
   const nav = (navigator.languages && navigator.languages[0] || navigator.language || 'en').slice(0,2).toLowerCase();
@@ -453,6 +481,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt
 
 function pintarEstante(){
   const lista = CATALOGO.filter(j => filtro === 'todos' || (filtro === 'pago') === !!j.pago);
+  lista.sort((x, y) => nombreDe(x).localeCompare(nombreDe(y), idioma, { sensitivity:'base', numeric:true }));   // por orden alfabético, en el idioma de la app
   let html = '';
   for (const j of lista){
     const nombre = esc(nombreDe(j));
@@ -474,8 +503,11 @@ function pintarEstante(){
       ? '<a class="caja" href="'+esc(j.url)+'" data-id="'+j.id+'" aria-label="'+esc(t('abrir',{j:nombreDe(j)}))+'">'+dentro+'</a>'
       : '<button type="button" class="caja pronto" data-id="'+j.id+'">'+dentro+'</button>';
   }
-  // Si queda un hueco suelto, se cierra con un tramo de balda para que el mueble no quede cojo.
-  if (lista.length % 2) html += '<span class="caja vacia" aria-hidden="true"><span class="hueco"></span><span class="balda"></span></span>';
+  // Si queda un hueco suelto, lo ocupa una caja de cartón misteriosa: el próximo contador, en camino.
+  if (lista.length % 2) html += '<button type="button" class="caja misterio" aria-label="'+esc(t('misterio')+'. '+t('secreto'))+'">' +
+    '<span class="hueco"><span class="frente kraft"><span class="etiqueta"><i>'+t('envioDe')+'</i><i>'+t('envioPara')+'</i><b>?</b><s></s></span>' +
+    '<span class="flechas">↑↑</span></span></span>' +
+    '<span class="balda"><span class="ficha"><b>'+t('misterio')+'</b><small>'+t('secreto')+'</small></span></span></button>';
   $('estante').innerHTML = html;
 }
 
@@ -549,6 +581,8 @@ $('estante').addEventListener('click', e => {
     e.preventDefault();
     abrirVisor(CATALOGO.find(x => x.id === a.dataset.id)); return;
   }
+  const m = e.target.closest('.caja.misterio');
+  if (m){ m.classList.remove('agita'); void m.offsetWidth; m.classList.add('agita'); avisar(t('tramando')); return; }
   const c = e.target.closest('.caja.pronto'); if (!c) return;
   const j = CATALOGO.find(x => x.id === c.dataset.id);
   avisar(t('aunNo', {j:nombreDe(j)}));
