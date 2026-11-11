@@ -20,7 +20,7 @@
 
 :root{
   --pared:#cfe3e6; --pared2:#bcd6da; --tinta:#14323a; --suave:#3f6570;
-  --madera:#dcb87f; --madera2:#c59a5c; --canto:#a97f45;
+  --madera:#dcb87f; --madera2:#c59a5c; --canto:#a97f45; --fondo1:#9a6d42; --fondo2:#7f5631;
   --papel:#fbf6e9; --tintaPapel:#1c2b2f;
   --verde:#1f8f55; --amarillo:#ffd23f; --hueco:rgba(20,50,58,.10);
   --titulo:"Bagel Fat One","Arial Black",system-ui,sans-serif;
@@ -28,7 +28,7 @@
 }
 :root[data-tema="noche"]{
   --pared:#102a31; --pared2:#0b2026; --tinta:#f3ead6; --suave:#9dbcc2;
-  --madera:#7a5535; --madera2:#5f3f25; --canto:#43291a;
+  --madera:#7a5535; --madera2:#5f3f25; --canto:#43291a; --fondo1:#3d2718; --fondo2:#2b1a10;
   --papel:#eadfc6; --tintaPapel:#1c2b2f; --hueco:rgba(0,0,0,.28);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -57,16 +57,28 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 .estante{display:grid;grid-template-columns:1fr 1fr;border-inline:11px solid var(--madera2);border-top:11px solid var(--madera2);
   border-radius:4px 4px 0 0;background:linear-gradient(var(--pared2),var(--pared2))}
 .caja{display:flex;flex-direction:column;justify-content:flex-end;text-align:left;text-decoration:none;color:inherit;min-width:0}
-.hueco{padding:22px 16px 0;display:flex;align-items:flex-end;flex:1}
+.hueco{padding:28px 16px 0;display:flex;align-items:flex-end;flex:1;
+  /* fondo del mueble: tablas de madera más oscura, con la sombra de la balda de arriba y la del lateral */
+  background:
+    linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.16) 16%,rgba(0,0,0,0) 46%),
+    linear-gradient(var(--lado,90deg),rgba(0,0,0,.36),rgba(0,0,0,0) 20%),
+    linear-gradient(0deg,rgba(0,0,0,.22),rgba(0,0,0,0) 14%),
+    repeating-linear-gradient(90deg,rgba(0,0,0,0) 0 41px,rgba(0,0,0,.16) 41px 42px,rgba(255,255,255,.05) 42px 43px),
+    linear-gradient(var(--fondo1),var(--fondo2))}
+.caja:nth-child(even) .hueco{--lado:270deg}
 .frente{position:relative;display:block;width:100%;aspect-ratio:1/1;border-radius:5px 5px 2px 2px;container-type:inline-size;
   background:linear-gradient(155deg,var(--c1),var(--c2));
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -9px 0 rgba(0,0,0,.2),inset 3px 0 0 rgba(255,255,255,.08),0 2px 0 rgba(0,0,0,.25);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -9px 0 rgba(0,0,0,.2),inset 3px 0 0 rgba(255,255,255,.08),0 2px 0 rgba(0,0,0,.3),
+    0 -3px 9px rgba(0,0,0,.28),9px 4px 14px -3px rgba(0,0,0,.5),-5px 4px 10px -4px rgba(0,0,0,.32);
   transition:transform .12s ease-out}
 .caja:active .frente{transform:translateY(-6px) rotate(-1.5deg)}
 .frente img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+/* sombra suave que sube desde la base de la caja, como si apoyara en la balda */
+.frente::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.46),rgba(0,0,0,.2) 14%,rgba(0,0,0,.06) 30%,rgba(0,0,0,0) 44%)}
 .rotulo{position:absolute;inset:0;display:flex;align-items:center;padding:0 9cqi 5cqi;font-family:var(--titulo);
   font-size:18cqi;line-height:.95;color:var(--ct,#fff);text-wrap:balance;overflow-wrap:anywhere;text-shadow:0 2px 0 rgba(0,0,0,.22)}
-.pegatina{position:absolute;top:-10px;right:-9px;font-weight:700;font-size:.8rem;line-height:1;white-space:nowrap;
+.pegatina{position:absolute;z-index:2;top:-10px;right:-9px;font-weight:700;font-size:.8rem;line-height:1;white-space:nowrap;
   box-shadow:0 2px 3px rgba(0,0,0,.3)}
 .pegatina.gratis{background:var(--verde);color:#fff;min-width:54px;height:54px;padding:0 7px;border-radius:50%;display:grid;place-items:center;transform:rotate(11deg)}
 .pegatina.pago{background:var(--amarillo);color:#1c2b2f;padding:8px 10px 8px 16px;transform:rotate(7deg);
@@ -75,7 +87,7 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 .caja.pronto .frente{filter:grayscale(.75) opacity(.55)}
 .balda{display:block;min-height:58px;padding:7px 9px 9px;background:linear-gradient(var(--madera),var(--madera2));
   border-bottom:4px solid var(--canto);box-shadow:0 5px 8px -4px rgba(0,0,0,.35)}
-.ficha{display:block;background:var(--papel);color:var(--tintaPapel);border-radius:3px;padding:5px 8px 6px;height:100%;
+.ficha{display:flex;flex-direction:column;justify-content:center;min-height:45px;text-align:center;background:var(--papel);color:var(--tintaPapel);border-radius:3px;padding:5px 8px 6px;height:100%;
   box-shadow:0 1px 0 rgba(0,0,0,.25)}
 .ficha b{display:block;font-weight:700;font-size:.98rem;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ficha small{display:block;font-size:.8rem;line-height:1.2;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -151,7 +163,7 @@ body.conVisor{overflow:hidden}
 
 <script>
 'use strict';
-const VERSION = 'v1.4';
+const VERSION = 'v1.9';
 
 /* ============================================================
    CATÁLOGO. Para añadir un contador, copia un bloque y cámbialo.
@@ -252,6 +264,10 @@ function idiomaInicial(){
 }
 let idioma = idiomaInicial();
 let filtro = 'todos';
+// Contadores que ya se han abierto alguna vez desde aquí.
+let abiertos = [];
+try { abiertos = JSON.parse(mem.leer('ludoteca-abiertos')) || []; } catch(e){}
+if (!Array.isArray(abiertos)) abiertos = [];
 const t = (k, v) => { let s = T[idioma][k]; if (v) for (const n in v) s = s.replace('{'+n+'}', v[n]); return s; };
 const nombreDe = j => typeof j.nombre === 'string' ? j.nombre : (j.nombre[idioma] || j.nombre.otros);
 
@@ -285,13 +301,17 @@ function pintarEstante(){
     const lista_ = !!j.url, act = activado(j);
     let pegatina = '', detalle;
     if (!lista_) detalle = t('pronto');
-    else if (!j.pago){ pegatina = '<span class="pegatina gratis">'+t('gratis')+'</span>'; detalle = t('libre'); }
-    else if (act){ pegatina = '<span class="pegatina activo">'+t('activado')+'</span>'; detalle = t('conClave'); }
+    else if (!j.pago){
+      // Un gratuito ya abierto alguna vez se queda sin pegatina ni texto: ya se sabe que es gratis.
+      if (abiertos.includes(j.id)) detalle = '';
+      else { pegatina = '<span class="pegatina gratis">'+t('gratis')+'</span>'; detalle = t('libre'); }
+    }
+    else if (act) detalle = '';   // con la clave puesta, la caja queda limpia: ya es suyo
     else { pegatina = '<span class="pegatina pago">'+t('pago')+'</span>'; detalle = j.prueba === 1 ? t('prueba1') : t('pruebaN', {n:j.prueba}); }
     const arte = '<span class="rotulo">'+nombre+'</span>' +
       (j.icono ? '<img src="'+esc(j.icono)+'" alt="" loading="lazy" onerror="this.remove()">' : '');
     const dentro = '<span class="hueco"><span class="frente" style="--c1:'+j.c1+';--c2:'+j.c2+';--ct:'+j.ct+'">'+arte+pegatina+'</span></span>' +
-      '<span class="balda"><span class="ficha"><b>'+nombre+'</b><small>'+detalle+'</small></span></span>';
+      '<span class="balda"><span class="ficha"><b>'+nombre+'</b>'+(detalle ? '<small>'+detalle+'</small>' : '')+'</span></span>';
     html += lista_
       ? '<a class="caja" href="'+esc(j.url)+'" data-id="'+j.id+'" aria-label="'+esc(t('abrir',{j:nombreDe(j)}))+'">'+dentro+'</a>'
       : '<button type="button" class="caja pronto" data-id="'+j.id+'">'+dentro+'</button>';
@@ -351,6 +371,7 @@ function abrirVisor(j){
   $('visor').insertBefore(marco, $('visor').firstChild);
   $('visor').classList.add('abierto'); document.body.classList.add('conVisor');
   document.querySelector('meta[name="theme-color"]').content = col;
+  if (!abiertos.includes(j.id)){ abiertos.push(j.id); mem.guardar('ludoteca-abiertos', JSON.stringify(abiertos)); }
   try { history.pushState({ visor:j.id }, ''); } catch(e){}   // el botón «atrás» de Android también cierra
 }
 function cerrarVisor(silencio){
