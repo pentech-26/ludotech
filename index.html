@@ -675,7 +675,7 @@ function deJaDePie(x, xFin, suelo, ang, hondo){
     const brinco = k > .6 ? Math.sin((k - .6) / .4 * Math.PI) * hondo * .14 : 0;   // y su rebotito
     ponMeeple(deX + (xFin - deX) * e, suelo + baja - brinco, desde + (hasta - desde) * e, 0);
     if (k < 1) relojMeeple = requestAnimationFrame(gira);
-    else posaMeeple(xFin, suelo + hondo, hasta);
+    else { posaMeeple(xFin, suelo + hondo, hasta); tiembla(); }   // al quedarse quieto, saluda una vez
   })(performance.now());
 }
 
@@ -685,7 +685,6 @@ function posaMeeple(x, base, ang){          // ya está quieto: a partir de aqu�
 }
 
 /* Cada cierto rato se estremece y suelta un «hola» en el idioma de la app. */
-const CADA = 8500;          // temblor (0,5 s) + saludo (5 s) + respiro (3 s)
 function tiembla(){
   if (!sitioQuieto || quieto || document.hidden) return;
   const { x, base, ang } = sitioQuieto, t0 = performance.now();
@@ -698,7 +697,7 @@ function tiembla(){
     requestAnimationFrame(sacude);
   })(performance.now());
 }
-const VISIBLE = 5000;                       // lo que se queda el saludo en pantalla
+const VISIBLE = 3000;                       // lo que se queda el saludo en pantalla; luego no vuelve hasta que se le lance otra vez
 function diHola(){
   if (!sitioQuieto) return;
   const bo = $('bocadillo');
@@ -722,7 +721,6 @@ addEventListener('resize', () => {          // al girar o cambiar de tamaño, se
   $('bocadillo').classList.remove('ver');
   posaMeeple((letraX(1) || izq + .13 * ancho) - PATAS * anchoMeeple, suelo + aLaU, 0);
 });
-setInterval(tiembla, CADA);
 // se espera a que cargue la tipografía: si no, el título aún no mide lo que medirá
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(tiraMeeple, 260));
 else setTimeout(tiraMeeple, 500);
