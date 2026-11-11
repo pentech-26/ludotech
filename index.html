@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Ludoteca PenTech</title>
+<title>Ludotech</title>
 <meta name="description" content="Todos los contadores de PenTech para juegos de mesa, en una sola app.">
 <meta name="theme-color" content="#cfe3e6">
 <link rel="manifest" href="manifest.json">
@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ludoteca">
+<meta name="apple-mobile-web-app-title" content="Ludotech">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preload" href="fonts/bagel-fat-one.woff2" as="font" type="font/woff2" crossorigin>
 <style>
@@ -217,7 +217,7 @@ body.conVisor{overflow:hidden}
 
 <script>
 'use strict';
-const VERSION = 'v1.11';
+const VERSION = 'v1.12';
 
 /* ============================================================
    CATÁLOGO. Para añadir un contador, copia un bloque y cámbialo.
@@ -255,46 +255,46 @@ const CATALOGO = [
 const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:'Deutsch', it:'Italiano' };
 
 const T = {
-  es:{ volver:'Volver a la Ludoteca', titulo:'Ludoteca', sub:'Los contadores de PenTech', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
+  es:{ volver:'Volver a Ludotech', titulo:'Ludotech', sub:'Espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
     libre:'Partidas sin límite', prueba1:'1 partida de prueba', pruebaN:'{n} partidas de prueba', conClave:'Clave activada', pronto:'Llegará pronto',
     aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', cerrar:'Cerrar', gira:'Gira el móvil',
     aNoche:'Cambiar a modo noche', aDia:'Cambiar a modo día', abrir:'Abrir el contador de {j}',
-    textoLegal:['Ludoteca reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
+    textoLegal:['Ludotech reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
       'No están afiliados, patrocinados ni aprobados por los autores ni por las editoriales de los juegos. Los nombres de los juegos son marcas de sus respectivos propietarios.',
       'Para jugar necesitas un ejemplar de cada juego. Las claves de licencia dan acceso a los contadores, no a los juegos.'] },
-  ca:{ volver:'Torna a la Ludoteca', titulo:'Ludoteca', sub:'Els comptadors de PenTech', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
+  ca:{ volver:'Torna a Ludotech', titulo:'Ludotech', sub:'Espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
     libre:'Partides sense límit', prueba1:'1 partida de prova', pruebaN:'{n} partides de prova', conClave:'Clau activada', pronto:'Arribarà aviat',
     aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', cerrar:'Tanca', gira:'Gira el mòbil',
     aNoche:'Canvia a mode nit', aDia:'Canvia a mode dia', abrir:'Obre el comptador de {j}',
-    textoLegal:['Ludoteca aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
+    textoLegal:['Ludotech aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
       'No estan afiliats, patrocinats ni aprovats pels autors ni per les editorials dels jocs. Els noms dels jocs són marques dels seus propietaris respectius.',
       'Per jugar necessites un exemplar de cada joc. Les claus de llicència donen accés als comptadors, no als jocs.'] },
-  en:{ volver:'Back to the shelf', titulo:'Game shelf', sub:'Score counters by PenTech', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
+  en:{ volver:'Back to Ludotech', titulo:'Ludotech', sub:'A home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
     libre:'Unlimited games', prueba1:'1 trial game', pruebaN:'{n} trial games', conClave:'Key activated', pronto:'Coming soon',
     aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', cerrar:'Close', gira:'Rotate your phone',
     aNoche:'Switch to night mode', aDia:'Switch to day mode', abrir:'Open the {j} counter',
-    textoLegal:['Game shelf gathers the unofficial score counters created independently by PenTech.',
+    textoLegal:['Ludotech gathers the unofficial score counters created independently by PenTech.',
       'They are not affiliated with, sponsored or endorsed by the designers or publishers of the games. Game names are trademarks of their respective owners.',
       'You need a copy of each game to play. Licence keys give access to the counters, not to the games.'] },
-  fr:{ volver:'Retour à la ludothèque', titulo:'Ludothèque', sub:'Les compteurs de PenTech', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
+  fr:{ volver:'Retour à Ludotech', titulo:'Ludotech', sub:'L’espace de vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
     libre:'Parties illimitées', prueba1:'1 partie d’essai', pruebaN:'{n} parties d’essai', conClave:'Clé activée', pronto:'Bientôt disponible',
     aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', cerrar:'Fermer', gira:'Tournez le téléphone',
     aNoche:'Passer en mode nuit', aDia:'Passer en mode jour', abrir:'Ouvrir le compteur de {j}',
-    textoLegal:['Ludothèque rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
+    textoLegal:['Ludotech rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
       'Ils ne sont ni affiliés, ni sponsorisés, ni approuvés par les auteurs ou les éditeurs des jeux. Les noms des jeux sont des marques de leurs propriétaires respectifs.',
       'Pour jouer, il vous faut un exemplaire de chaque jeu. Les clés de licence donnent accès aux compteurs, pas aux jeux.'] },
-  de:{ volver:'Zurück zum Regal', titulo:'Spieleregal', sub:'Die Punktezähler von PenTech', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
+  de:{ volver:'Zurück zu Ludotech', titulo:'Ludotech', sub:'Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
     libre:'Unbegrenzt spielen', prueba1:'1 Testpartie', pruebaN:'{n} Testpartien', conClave:'Schlüssel aktiviert', pronto:'Kommt bald',
     aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', cerrar:'Schließen', gira:'Handy drehen',
     aNoche:'Zum Nachtmodus wechseln', aDia:'Zum Tagmodus wechseln', abrir:'Zähler für {j} öffnen',
-    textoLegal:['Spieleregal versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
+    textoLegal:['Ludotech versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
       'Sie stehen in keiner Verbindung zu den Autoren oder Verlagen der Spiele und werden von ihnen weder gesponsert noch unterstützt. Die Spielenamen sind Marken ihrer jeweiligen Inhaber.',
       'Zum Spielen brauchst du ein Exemplar des jeweiligen Spiels. Lizenzschlüssel geben Zugang zu den Zählern, nicht zu den Spielen.'] },
-  it:{ volver:'Torna alla Ludoteca', titulo:'Ludoteca', sub:'I contatori di PenTech', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
+  it:{ volver:'Torna a Ludotech', titulo:'Ludotech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
     libre:'Partite senza limite', prueba1:'1 partita di prova', pruebaN:'{n} partite di prova', conClave:'Chiave attivata', pronto:'In arrivo',
     aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', cerrar:'Chiudi', gira:'Ruota il telefono',
     aNoche:'Passa alla modalità notte', aDia:'Passa alla modalità giorno', abrir:'Apri il contatore di {j}',
-    textoLegal:['Ludoteca riunisce i contatori di punti non ufficiali creati in modo indipendente da PenTech.',
+    textoLegal:['Ludotech riunisce i contatori di punti non ufficiali creati in modo indipendente da PenTech.',
       'Non sono affiliati, sponsorizzati né approvati dagli autori o dagli editori dei giochi. I nomi dei giochi sono marchi dei rispettivi proprietari.',
       'Per giocare serve una copia di ciascun gioco. Le chiavi di licenza danno accesso ai contatori, non ai giochi.'] }
 };
@@ -392,7 +392,7 @@ function aplicarIdioma(){
   $('gira').textContent = t('gira');
   $('tVolver').textContent = t('volver');
   $('textoLegal').innerHTML = T[idioma].textoLegal.map(p => '<p>'+esc(p)+'</p>').join('') +
-    '<p class="ver">Ludoteca PenTech · '+VERSION+'</p>';
+    '<p class="ver">Ludotech · PenTech · '+VERSION+'</p>';
   $('listaIdiomas').innerHTML = Object.keys(IDIOMAS).map(c =>
     '<button type="button" data-l="'+c+'" aria-current="'+(c===idioma)+'">'+IDIOMAS[c]+'</button>').join('');
   pintarFiltros(); pintarEstante(); aplicarTema();

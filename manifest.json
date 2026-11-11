@@ -1,6 +1,6 @@
 {
-  "name": "Ludoteca PenTech",
-  "short_name": "Ludoteca",
+  "name": "Ludotech",
+  "short_name": "Ludotech",
   "description": "Todos los contadores de PenTech para juegos de mesa, en una sola app.",
   "lang": "es",
   "start_url": "./",
