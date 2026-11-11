@@ -104,6 +104,30 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 @keyframes lava{0%,100%{filter:drop-shadow(0 0 14px rgba(214,60,190,.45)) drop-shadow(0 3px 2px rgba(0,0,0,.5))}
   50%{filter:drop-shadow(0 0 26px rgba(232,84,150,.75)) drop-shadow(0 3px 2px rgba(0,0,0,.5))}}
 
+/* Intro: fondo claro que se oscurece hacia abajo, como el modo noche */
+.intro{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;
+  padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  background:linear-gradient(#cfe3e6 0%,#cfe3e6 34%,#5d7f86 68%,#102a31 100%);
+  transition:opacity .55s ease,visibility .55s}
+.intro.fuera{opacity:0;visibility:hidden;pointer-events:none}
+.introCaja{position:relative;margin-top:21vh;text-align:center}
+.introTitulo{font-family:var(--titulo);font-size:clamp(3.6rem,21vw,6.2rem);line-height:.9;letter-spacing:-.01em;color:#14323a;
+  opacity:0;transform:translateY(14px);animation:introSube .6s cubic-bezier(.2,.9,.3,1.15) .1s forwards}
+.introFrase{margin-top:14px;font-weight:500;font-size:1.12rem;color:#3f6570;opacity:0;animation:introAparece .5s ease .55s forwards}
+.introFirma{margin:auto 0 30px;font-weight:600;font-size:.95rem;letter-spacing:.03em;color:rgba(243,234,214,.8);
+  opacity:0;animation:introAparece .5s ease .8s forwards}
+.introMeeple{position:absolute;left:0;top:0;opacity:0}
+.introMeeple svg{display:block;height:100%;width:auto;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.32))}
+.introLogo{position:relative;width:clamp(104px,31vw,138px);aspect-ratio:1;margin:30px auto 0;border-radius:23%;
+  box-shadow:0 2px 0 rgba(255,255,255,.35) inset,0 18px 32px -6px rgba(8,24,29,.5),0 6px 12px rgba(8,24,29,.28);
+  opacity:0;transform:translateY(18px) scale(.85);animation:introSube .6s cubic-bezier(.2,.9,.3,1.25) .8s forwards}
+.introLogo img{display:block;width:100%;height:100%;border-radius:inherit}
+.introLogo::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;   /* brillo de arriba: le da volumen */
+  background:linear-gradient(170deg,rgba(255,255,255,.28),rgba(255,255,255,0) 42%,rgba(0,0,0,0) 70%,rgba(0,0,0,.18));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+@keyframes introSube{to{opacity:1;transform:none}}
+@keyframes introAparece{to{opacity:1}}
+
 /* El meeple que cae sobre el título */
 .meeple{position:absolute;left:0;top:0;z-index:2;opacity:0;cursor:pointer;will-change:transform;
   transform-origin:50% 50%;-webkit-touch-callout:none}
@@ -204,6 +228,15 @@ body.conVisor{overflow:hidden}
 </style>
 </head>
 <body>
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="introCaja" id="introCaja">
+    <div class="introTitulo" id="introTitulo">LudoTech</div>
+    <div class="introFrase" id="introFrase"></div>
+    <div class="introLogo"><img src="icon-512.png" alt=""></div>
+    <div class="introMeeple" id="introMeeple"></div>
+  </div>
+  <div class="introFirma">PenTech</div>
+</div>
 <div class="app">
   <div class="barra">
     <div class="conIdioma">
@@ -447,6 +480,7 @@ function aplicarIdioma(){
   document.documentElement.lang = idioma;
   $('titulo').textContent = t('titulo');
   $('sub').textContent = t('sub');
+  $('introFrase').textContent = t('sub');
   $('bLegal').textContent = t('legal') + ' · ' + VERSION;
   $('bIdioma').setAttribute('aria-label', t('idioma'));
   $('tLegal').textContent = t('legal');
@@ -722,8 +756,44 @@ addEventListener('resize', () => {          // al girar o cambiar de tamaño, se
   posaMeeple((letraX(1) || izq + .13 * ancho) - PATAS * anchoMeeple, suelo + aLaU, 0);
 });
 // se espera a que cargue la tipografía: si no, el título aún no mide lo que medirá
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(tiraMeeple, 260));
-else setTimeout(tiraMeeple, 500);
+/* ---------- Intro ----------
+   LudoTech grande, el meeple cae sobre la u con un par de botes y la frase debajo.
+   Dura unos 2,8 s (tocar la salta); al irse, el meeple de la portada hace su caída. */
+let introHecha = false;
+function acabaIntro(){
+  if (introHecha) return; introHecha = true;
+  $('intro').classList.add('fuera'); aplicarTema();
+  setTimeout(() => { $('intro').remove(); tiraMeeple(); }, 560);
+}
+function arrancaIntro(){
+  const caja = $('introCaja'), tit = $('introTitulo'), m = $('introMeeple');
+  document.querySelector('meta[name="theme-color"]').content = '#cfe3e6';
+  m.innerHTML = $('meeple').querySelector('svg').outerHTML;
+  const F = parseFloat(getComputedStyle(tit).fontSize);
+  const n = tit.firstChild, rg = document.createRange(); rg.setStart(n, 1); rg.setEnd(n, 2);
+  const u = rg.getBoundingClientRect(), c = caja.getBoundingClientRect();
+  const alto = Math.round(.56 * F), ancho = alto * .865;
+  const x = u.left - c.left + u.width / 2 - PATAS * ancho - ancho / 2;    // un pie en cada palo de la u
+  const suelo = tit.offsetTop + .357 * F + alto * PISADA;   // los pies sobre la u (offsetTop: sin contar la animación de entrada)
+  m.style.height = alto + 'px';
+  const pon = y => { m.style.transform = 'translate(' + x.toFixed(1) + 'px,' + (y - alto).toFixed(1) + 'px)'; };
+  if (quieto){ pon(suelo); m.style.opacity = 1; }
+  else setTimeout(() => {                    // cae desde arriba y da dos botes cortos
+    let y = suelo - 3.2 * F, vy = 0, antes = 0, botes = 0;
+    const g = 3200; m.style.opacity = 1;
+    (function paso(ts){
+      if (!antes) antes = ts;
+      const dt = Math.min(.03, (ts - antes) / 1000); antes = ts;
+      vy += g * dt; y += vy * dt;
+      if (y >= suelo){ y = suelo; vy = -vy * .34; botes++; if (botes > 2 || Math.abs(vy) < 40){ pon(suelo); return; } }
+      pon(y); requestAnimationFrame(paso);
+    })(performance.now());
+  }, 650);
+  $('intro').addEventListener('click', acabaIntro);
+  setTimeout(acabaIntro, 3100);
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(arrancaIntro);
+else setTimeout(arrancaIntro, 300);
 
 aplicarIdioma();
 
