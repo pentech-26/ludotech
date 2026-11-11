@@ -108,7 +108,10 @@ dialog::backdrop{background:rgba(8,24,29,.6)}
 .visorBarra button{display:flex;align-items:center;gap:7px;min-height:34px;padding:0 16px 0 12px;border-radius:999px;
   background:rgba(255,255,255,.16);color:#fff;font-weight:600;font-size:.9rem}
 .visorBarra button:active{background:rgba(255,255,255,.3)}
-.visorBarra svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.visorBarra svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:empuja 1.3s ease-in-out infinite}
+@keyframes empuja{0%,100%{transform:translateX(3px)}50%{transform:translateX(-4px)}}
+.visor.clara .visorBarra button{background:rgba(20,50,58,.12);color:#14323a}
+.visor.clara .visorBarra button:active{background:rgba(20,50,58,.24)}
 body.conVisor{overflow:hidden}
 
 /* Aviso breve */
@@ -120,7 +123,7 @@ body.conVisor{overflow:hidden}
 /* Solo vertical */
 .gira{display:none;position:fixed;inset:0;z-index:9;background:var(--pared);color:var(--tinta);place-items:center;font-family:var(--titulo);font-size:2rem}
 @media (orientation:landscape) and (max-height:480px){.gira{display:grid}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -141,20 +144,22 @@ body.conVisor{overflow:hidden}
 <dialog id="dIdioma"><div class="vent"><h2 id="tIdioma"></h2><div class="idiomas" id="listaIdiomas"></div></div></dialog>
 <dialog id="dLegal"><div class="vent"><h2 id="tLegal"></h2><div id="textoLegal"></div><button class="cerrar" type="button" id="bCerrar"></button></div></dialog>
 <div class="visor" id="visor">
-  <div class="visorBarra"><button type="button" id="bVolver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span id="tVolver"></span></button></div>
+  <div class="visorBarra"><button type="button" id="bVolver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5.500L4.500 12l6.500 6.500"/></svg><span id="tVolver"></span></button></div>
 </div>
 <div class="aviso" id="aviso" role="status"></div>
 <div class="gira" id="gira"></div>
 
 <script>
 'use strict';
-const VERSION = 'v1.1';
+const VERSION = 'v1.3';
 
 /* ============================================================
    CATÁLOGO. Para añadir un contador, copia un bloque y cámbialo.
    - url:    dirección publicada. Vacía = sale como «Pronto».
    - icono:  imagen cuadrada del contador (opcional). Si falta o no carga,
              la caja se pinta con el nombre y los colores c1, c2 y ct.
+   - franja: (opcional) color de la franja de «Volver a la Ludoteca». Si falta, se usa c2.
+             El texto del botón se pone claro u oscuro solo, según el color.
    - pago:   true si lleva clave de licencia. prueba = partidas gratis.
    - lic:    (opcional) dónde guarda el contador que la clave está puesta,
              p. ej. { clave:'nombre-en-localStorage', valor:'1' }.
@@ -163,10 +168,10 @@ const VERSION = 'v1.1';
 const CATALOGO = [
   { id:'la-cuenta', nombre:'La Cuenta', pago:false,
     url:'https://pentech-26.github.io/la-cuenta-contador/', icono:'https://pentech-26.github.io/la-cuenta-contador/icon-192.png',
-    c1:'#d9483b', c2:'#a82d24', ct:'#fff6e6' },
+    c1:'#d9483b', c2:'#a82d24', ct:'#fff6e6', franja:'#fed8c5' },
   { id:'toma-6', nombre:'Toma 6', pago:false,
     url:'https://pentech-26.github.io/Toma-6-contador/', icono:'https://pentech-26.github.io/Toma-6-contador/icon-192.png',
-    c1:'#6a45a8', c2:'#452a78', ct:'#ffe27a' },
+    c1:'#6a45a8', c2:'#452a78', ct:'#ffe27a', franja:'#e4f1fc' },
   { id:'ratas-de-wistar', nombre:{ es:'Ratas de Wistar', ca:'Ratas de Wistar', otros:'Rats of Wistar' }, pago:true, prueba:3, lic:{ clave:'rw_licencia', valor:'true' },
     url:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/', icono:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/icon-192.png',
     c1:'#3d6336', c2:'#2f4a2b', ct:'#f1e6b8' },
@@ -175,10 +180,10 @@ const CATALOGO = [
     c1:'#c5341f', c2:'#8f1f14', ct:'#f6cf5b' },
   { id:'tichu', nombre:'Tichu', pago:true, prueba:1, lic:{ clave:'tichu-pro-lic' },
     url:'https://pentech-26.github.io/Tichu-contador/', icono:'https://pentech-26.github.io/Tichu-contador/icon-192.png',
-    c1:'#8c2433', c2:'#5e1522', ct:'#e9c46a' },
+    c1:'#8c2433', c2:'#5e1522', ct:'#e9c46a', franja:'#f9e3e6' },
   { id:'7-wonders', nombre:'7 Wonders', pago:true, prueba:3, lic:{ clave:'sw7-lic-v2' },
     url:'https://pentech-26.github.io/7-Wonders-Contador/', icono:'https://pentech-26.github.io/7-Wonders-Contador/icon-192.png',
-    c1:'#2a5f8f', c2:'#173d63', ct:'#f2d27a' }
+    c1:'#2a5f8f', c2:'#173d63', ct:'#f2d27a', franja:'#0f1a2e' }
 ];
 
 const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:'Deutsch', it:'Italiano' };
@@ -331,15 +336,21 @@ function avisar(txt){
    El contador se abre dentro de la Ludoteca (en un marco a pantalla completa), así el móvil
    no enseña la barra del navegador. Debajo queda una franja con el botón para volver. */
 let marco = null;
+function esClaro(hex){   // ¿el color pide texto oscuro encima?
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = n >> 8 & 255, b = n & 255;
+  return (r*299 + g*587 + b*114) / 1000 > 150;
+}
 function abrirVisor(j){
   cerrarVisor(true);
   marco = document.createElement('iframe');
   marco.src = j.url; marco.title = nombreDe(j);
   marco.allow = 'autoplay; fullscreen; clipboard-write; web-share';
-  $('visor').style.setProperty('--vc', j.c2);
+  const col = j.franja || j.c2;
+  $('visor').style.setProperty('--vc', col);
+  $('visor').classList.toggle('clara', esClaro(col));
   $('visor').insertBefore(marco, $('visor').firstChild);
   $('visor').classList.add('abierto'); document.body.classList.add('conVisor');
-  document.querySelector('meta[name="theme-color"]').content = j.c2;
+  document.querySelector('meta[name="theme-color"]').content = col;
   try { history.pushState({ visor:j.id }, ''); } catch(e){}   // el botón «atrás» de Android también cierra
 }
 function cerrarVisor(silencio){
