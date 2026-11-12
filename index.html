@@ -520,8 +520,10 @@ function aplicarIdioma(){
   document.documentElement.lang = idioma;
   $('titulo').textContent = t('titulo');
   $('sub').textContent = t('sub');
-  $('introFrase').textContent = t('sub');
-  $('introToca').textContent = t('empieza');
+  if ($('intro')){   // la intro se borra al entrar: solo se traduce mientras existe
+    $('introFrase').textContent = t('sub');
+    $('introToca').textContent = t('empieza');
+  }
   $('bLegal').textContent = t('legal') + ' · ' + VERSION;
   $('bIdioma').setAttribute('aria-label', t('idioma'));
   $('tLegal').textContent = t('legal');
