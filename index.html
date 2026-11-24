@@ -179,6 +179,16 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
 .pegatina.gratis{background:var(--verde);color:#fff;min-width:54px;height:54px;padding:0 7px;border-radius:50%;display:grid;place-items:center;transform:rotate(11deg)}
 .pegatina.pago{background:var(--amarillo);color:#1c2b2f;padding:8px 10px 8px 16px;transform:rotate(7deg);
   clip-path:polygon(11px 0,100% 0,100% 100%,11px 100%,0 50%);box-shadow:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.pegatina.estrella{background:none;box-shadow:none;color:#fff;width:62px;height:62px;display:grid;place-items:center;
+  transform:rotate(11deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));top:-13px;right:-12px}
+.pegatina.estrella::before{content:"";position:absolute;inset:0;background:var(--verde);clip-path:polygon(50.0% 0.0%,58.0% 9.8%,69.1% 3.8%,72.8% 15.9%,85.4% 14.6%,84.1% 27.2%,96.2% 30.9%,90.2% 42.0%,100.0% 50.0%,90.2% 58.0%,96.2% 69.1%,84.1% 72.8%,85.4% 85.4%,72.8% 84.1%,69.1% 96.2%,58.0% 90.2%,50.0% 100.0%,42.0% 90.2%,30.9% 96.2%,27.2% 84.1%,14.6% 85.4%,15.9% 72.8%,3.8% 69.1%,9.8% 58.0%,0.0% 50.0%,9.8% 42.0%,3.8% 30.9%,15.9% 27.2%,14.6% 14.6%,27.2% 15.9%,30.9% 3.8%,42.0% 9.8%)}
+.pegatina.estrella span{position:relative}
+.pegatina.pro{background:var(--amarillo);color:#1c2b2f;width:66px;height:66px;border-radius:50%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;transform:rotate(11deg);top:-14px;right:-13px;line-height:1;
+  box-shadow:0 2px 3px rgba(0,0,0,.3),inset 0 0 0 2px rgba(255,255,255,.45)}
+.pegatina.pro .g{font-size:.8rem;font-weight:800;letter-spacing:.01em;text-transform:uppercase}
+.pegatina.pro b{display:flex;align-items:center;gap:2px;font-size:.78rem;font-weight:800;margin-top:3px}
+.pegatina.pro svg{width:13px;height:13px;display:block;margin-top:-1px}   /* candado dibujado en oscuro: el emoji amarillo se perdía en el amarillo */
 .pegatina.activo{background:#fff;color:var(--verde);padding:7px 10px;border-radius:999px;transform:rotate(-6deg);border:2px solid var(--verde)}
 .caja.pronto .frente{filter:grayscale(.75) opacity(.55)}
 .balda{display:block;min-height:58px;padding:7px 9px 9px;background:linear-gradient(var(--madera),var(--madera2));
@@ -324,6 +334,8 @@ const VERSION = 'v1.0';   // visible en el pie. No se toca hasta que Davito lo d
    - franja: (opcional) color de la franja de «Volver a la Ludoteca». Si falta, se usa c2.
              El texto del botón se pone claro u oscuro solo, según el color.
    - pago:   true si lleva clave de licencia. prueba = partidas gratis.
+   - pro:    true si es «gratis + Pro»: se usa gratis sin límite y la clave desbloquea
+             la versión completa. Sale con la pegatina «Gratis» y «Gratis + Pro 🔓».
    - lic:    (opcional) dónde guarda el contador que la clave está puesta,
              p. ej. { clave:'nombre-en-localStorage', valor:'1' }.
              Con eso la caja pasa de «De pago» a «Activado».
@@ -335,62 +347,65 @@ const CATALOGO = [
   { id:'toma-6', nombre:'Toma 6', pago:false,
     url:'https://pentech-26.github.io/Toma-6-contador/', icono:'https://pentech-26.github.io/Toma-6-contador/icon-192.png',
     c1:'#6a45a8', c2:'#452a78', ct:'#ffe27a', franja:'#e4f1fc' },
-  { id:'ratas-de-wistar', nombre:{ es:'Ratas de Wistar', ca:'Ratas de Wistar', otros:'Rats of Wistar' }, pago:true, prueba:3, lic:{ clave:'rw_licencia', valor:'true' },
+  { id:'ratas-de-wistar', nombre:{ es:'Ratas de Wistar', ca:'Ratas de Wistar', otros:'Rats of Wistar' }, pago:false,
     url:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/', icono:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/icon-192.png',
     c1:'#3d6336', c2:'#2f4a2b', ct:'#f1e6b8' },
   { id:'catan', nombre:'Catan', pago:true, prueba:3, lic:{ clave:'catan-licencia-v1' },
     url:'https://pentech-26.github.io/Catan-contador/', icono:'https://pentech-26.github.io/Catan-contador/icon-192.png',
     c1:'#c5341f', c2:'#8f1f14', ct:'#f6cf5b' },
-  { id:'tichu', nombre:'Tichu', pago:true, prueba:3, lic:{ clave:'tichu-pro-lic' },
+  { id:'tichu', nombre:'Tichu', pago:true, pro:true, lic:{ clave:'tichu-pro-lic' },
     url:'https://pentech-26.github.io/Tichu-contador/', icono:'https://pentech-26.github.io/Tichu-contador/icon-192.png',
     c1:'#8c2433', c2:'#5e1522', ct:'#e9c46a', franja:'#f9e3e6' },
-  { id:'7-wonders', nombre:'7 Wonders', pago:true, prueba:3, lic:{ clave:'sw7-lic-v2' },
+  { id:'7-wonders', nombre:'7 Wonders', pago:true, pro:true, lic:{ clave:'sw7-lic-v2' },
     url:'https://pentech-26.github.io/7-Wonders-Contador/', icono:'https://pentech-26.github.io/7-Wonders-Contador/icon-192.png',
     c1:'#2a5f8f', c2:'#173d63', ct:'#f2d27a', franja:'#0f1a2e' },
-  { id:'agricola', nombre:'Agricola', pago:true, prueba:3, lic:{ clave:'agricola-licencia-v1', valor:'true' },
+  { id:'agricola', nombre:'Agricola', pago:true, pro:true, lic:{ clave:'agricola-licencia-v1', valor:'true' },
     url:'https://pentech-26.github.io/Agricola-contador/', icono:'https://pentech-26.github.io/Agricola-contador/icon-192.png',
-    c1:'#5c8a3c', c2:'#35603a', ct:'#f3e2b0', franja:'#35603a' }
+    c1:'#5c8a3c', c2:'#35603a', ct:'#f3e2b0', franja:'#35603a' },
+  { id:'wingspan', nombre:'Wingspan', pago:true, pro:true, lic:{ clave:'wingspan-licencia-v1', valor:'true' },
+    url:'https://pentech-26.github.io/Wingspan-contador/', icono:'https://pentech-26.github.io/Wingspan-contador/icon-192.png',
+    c1:'#3f78b5', c2:'#2a5a8c', ct:'#fffdf8', franja:'#cfe8f7' }
 ];
 
 const IDIOMAS = { es:'Español', ca:'Català', en:'English', fr:'Français', de:'Deutsch', it:'Italiano' };
 
 const T = {
-  es:{ misterio:'Próximamente', secreto:'Contenido secreto', tramando:'Algo se está tramando… 🤫', envioDe:'De: PenTech', envioPara:'Para: ti', empieza:'Guarda el lápiz y toca para contar', hola:'¡HOLA!', volver:'Volver a LudoTech', titulo:'LudoTech', sub:'El espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
+  es:{ compras:'Compras dentro', pro:'Pro', gratisPro:'Gratis + Pro 🔓', misterio:'Próximamente', secreto:'Contenido secreto', tramando:'Algo se está tramando… 🤫', envioDe:'De: PenTech', envioPara:'Para: ti', empieza:'Guarda el lápiz y toca para contar', hola:'¡HOLA!', volver:'Volver a LudoTech', titulo:'LudoTech', sub:'El espacio para tus contadores', todos:'Todos', gratis:'Gratis', pago:'De pago', activado:'Activado',
     libre:'Partidas sin límite', prueba1:'1 partida de prueba', pruebaN:'{n} partidas de prueba', conClave:'Clave activada', pronto:'Llegará pronto',
     aunNo:'{j} todavía no está en la estantería', legal:'Aviso legal', idioma:'Idioma', tema:'Tema', cerrar:'Cerrar', gira:'Gira el móvil',
     tAuto:'Automático', tDia:'Modo día', tNoche:'Modo noche', abrir:'Abrir el contador de {j}',
     textoLegal:['LudoTech reúne los contadores de puntos no oficiales creados de forma independiente por PenTech.',
       'No están afiliados, patrocinados ni aprobados por los autores ni por las editoriales de los juegos. Los nombres de los juegos son marcas de sus respectivos propietarios.',
       'Para jugar necesitas un ejemplar de cada juego. Las claves de licencia dan acceso a los contadores, no a los juegos.'] },
-  ca:{ misterio:'Properament', secreto:'Contingut secret', tramando:'S’està tramant alguna cosa… 🤫', envioDe:'De: PenTech', envioPara:'Per a: tu', empieza:'Desa el llapis i toca per comptar', hola:'HOLA!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'L’espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
+  ca:{ compras:'Compres dins', pro:'Pro', gratisPro:'Gratis + Pro 🔓', misterio:'Properament', secreto:'Contingut secret', tramando:'S’està tramant alguna cosa… 🤫', envioDe:'De: PenTech', envioPara:'Per a: tu', empieza:'Desa el llapis i toca per comptar', hola:'HOLA!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'L’espai per als teus comptadors', todos:'Tots', gratis:'Gratis', pago:'De pagament', activado:'Activat',
     libre:'Partides sense límit', prueba1:'1 partida de prova', pruebaN:'{n} partides de prova', conClave:'Clau activada', pronto:'Arribarà aviat',
     aunNo:'{j} encara no és a la prestatgeria', legal:'Avís legal', idioma:'Idioma', tema:'Tema', cerrar:'Tanca', gira:'Gira el mòbil',
     tAuto:'Automàtic', tDia:'Mode dia', tNoche:'Mode nit', abrir:'Obre el comptador de {j}',
     textoLegal:['LudoTech aplega els comptadors de punts no oficials creats de manera independent per PenTech.',
       'No estan afiliats, patrocinats ni aprovats pels autors ni per les editorials dels jocs. Els noms dels jocs són marques dels seus propietaris respectius.',
       'Per jugar necessites un exemplar de cada joc. Les claus de llicència donen accés als comptadors, no als jocs.'] },
-  en:{ misterio:'Coming soon', secreto:'Secret contents', tramando:'Something’s brewing… 🤫', envioDe:'From: PenTech', envioPara:'To: you', empieza:'Put the pencil down and tap to keep score', hola:'HI!', volver:'Back to LudoTech', titulo:'LudoTech', sub:'The home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
+  en:{ compras:'In-app purchases', pro:'Pro', gratisPro:'Free + Pro 🔓', misterio:'Coming soon', secreto:'Secret contents', tramando:'Something’s brewing… 🤫', envioDe:'From: PenTech', envioPara:'To: you', empieza:'Put the pencil down and tap to keep score', hola:'HI!', volver:'Back to LudoTech', titulo:'LudoTech', sub:'The home for your score counters', todos:'All', gratis:'Free', pago:'Paid', activado:'Unlocked',
     libre:'Unlimited games', prueba1:'1 trial game', pruebaN:'{n} trial games', conClave:'Key activated', pronto:'Coming soon',
     aunNo:'{j} is not on the shelf yet', legal:'Legal notice', idioma:'Language', tema:'Theme', cerrar:'Close', gira:'Rotate your phone',
     tAuto:'Automatic', tDia:'Day mode', tNoche:'Night mode', abrir:'Open the {j} counter',
     textoLegal:['LudoTech gathers the unofficial score counters created independently by PenTech.',
       'They are not affiliated with, sponsored or endorsed by the designers or publishers of the games. Game names are trademarks of their respective owners.',
       'You need a copy of each game to play. Licence keys give access to the counters, not to the games.'] },
-  fr:{ misterio:'Bientôt', secreto:'Contenu secret', tramando:'Quelque chose se prépare… 🤫', envioDe:'De : PenTech', envioPara:'Pour : toi', empieza:'Range ton crayon et touche pour compter', hola:'SALUT !', volver:'Retour à LudoTech', titulo:'LudoTech', sub:'L’espace pour vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
+  fr:{ compras:'Achats intégrés', pro:'Pro', gratisPro:'Gratuit + Pro 🔓', misterio:'Bientôt', secreto:'Contenu secret', tramando:'Quelque chose se prépare… 🤫', envioDe:'De : PenTech', envioPara:'Pour : toi', empieza:'Range ton crayon et touche pour compter', hola:'SALUT !', volver:'Retour à LudoTech', titulo:'LudoTech', sub:'L’espace pour vos compteurs', todos:'Tous', gratis:'Gratuit', pago:'Payant', activado:'Activé',
     libre:'Parties illimitées', prueba1:'1 partie d’essai', pruebaN:'{n} parties d’essai', conClave:'Clé activée', pronto:'Bientôt disponible',
     aunNo:'{j} n’est pas encore sur l’étagère', legal:'Mentions légales', idioma:'Langue', tema:'Thème', cerrar:'Fermer', gira:'Tournez le téléphone',
     tAuto:'Automatique', tDia:'Mode jour', tNoche:'Mode nuit', abrir:'Ouvrir le compteur de {j}',
     textoLegal:['LudoTech rassemble les compteurs de points non officiels créés de façon indépendante par PenTech.',
       'Ils ne sont ni affiliés, ni sponsorisés, ni approuvés par les auteurs ou les éditeurs des jeux. Les noms des jeux sont des marques de leurs propriétaires respectifs.',
       'Pour jouer, il vous faut un exemplaire de chaque jeu. Les clés de licence donnent accès aux compteurs, pas aux jeux.'] },
-  de:{ misterio:'Demnächst', secreto:'Geheimer Inhalt', tramando:'Da braut sich was zusammen … 🤫', envioDe:'Von: PenTech', envioPara:'An: dich', empieza:'Stift weg – tippen und Punkte zählen', hola:'HALLO!', volver:'Zurück zu LudoTech', titulo:'LudoTech', sub:'Der Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
+  de:{ compras:'In-App-Käufe', pro:'Pro', gratisPro:'Gratis + Pro 🔓', misterio:'Demnächst', secreto:'Geheimer Inhalt', tramando:'Da braut sich was zusammen … 🤫', envioDe:'Von: PenTech', envioPara:'An: dich', empieza:'Stift weg – tippen und Punkte zählen', hola:'HALLO!', volver:'Zurück zu LudoTech', titulo:'LudoTech', sub:'Der Platz für deine Punktezähler', todos:'Alle', gratis:'Gratis', pago:'Kaufen', activado:'Aktiviert',
     libre:'Unbegrenzt spielen', prueba1:'1 Testpartie', pruebaN:'{n} Testpartien', conClave:'Schlüssel aktiviert', pronto:'Kommt bald',
     aunNo:'{j} steht noch nicht im Regal', legal:'Rechtliche Hinweise', idioma:'Sprache', tema:'Darstellung', cerrar:'Schließen', gira:'Handy drehen',
     tAuto:'Automatisch', tDia:'Heller Modus', tNoche:'Dunkler Modus', abrir:'Zähler für {j} öffnen',
     textoLegal:['LudoTech versammelt die inoffiziellen Punktezähler, die PenTech unabhängig entwickelt hat.',
       'Sie stehen in keiner Verbindung zu den Autoren oder Verlagen der Spiele und werden von ihnen weder gesponsert noch unterstützt. Die Spielenamen sind Marken ihrer jeweiligen Inhaber.',
       'Zum Spielen brauchst du ein Exemplar des jeweiligen Spiels. Lizenzschlüssel geben Zugang zu den Zählern, nicht zu den Spielen.'] },
-  it:{ misterio:'Prossimamente', secreto:'Contenuto segreto', tramando:'Qualcosa bolle in pentola… 🤫', envioDe:'Da: PenTech', envioPara:'Per: te', empieza:'Metti via la matita e tocca per contare', hola:'CIAO!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
+  it:{ compras:'Acquisti in-app', pro:'Pro', gratisPro:'Gratis + Pro 🔓', misterio:'Prossimamente', secreto:'Contenuto segreto', tramando:'Qualcosa bolle in pentola… 🤫', envioDe:'Da: PenTech', envioPara:'Per: te', empieza:'Metti via la matita e tocca per contare', hola:'CIAO!', volver:'Torna a LudoTech', titulo:'LudoTech', sub:'Lo spazio per i tuoi contatori', todos:'Tutti', gratis:'Gratis', pago:'A pagamento', activado:'Attivato',
     libre:'Partite senza limite', prueba1:'1 partita di prova', pruebaN:'{n} partite di prova', conClave:'Chiave attivata', pronto:'In arrivo',
     aunNo:'{j} non è ancora sullo scaffale', legal:'Note legali', idioma:'Lingua', tema:'Tema', cerrar:'Chiudi', gira:'Ruota il telefono',
     tAuto:'Automatico', tDia:'Modalità giorno', tNoche:'Modalità notte', abrir:'Apri il contatore di {j}',
@@ -467,6 +482,8 @@ function aplicarTema(){
 }
 
 /* ---------- Licencias ---------- */
+const CANDADO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10" fill="none" stroke="#1c2b2f" stroke-width="2.6" stroke-linecap="round"/>' +
+  '<rect x="4.5" y="10" width="15" height="11.5" rx="2.6" fill="#1c2b2f"/><circle cx="12" cy="15" r="1.7" fill="#ffd23f"/><path d="M12 15.5v2.6" stroke="#ffd23f" stroke-width="1.8" stroke-linecap="round"/></svg>';
 function activado(j){
   if (!j.pago || !j.lic || !j.lic.clave) return false;
   const v = mem.leer(j.lic.clave);
@@ -477,7 +494,8 @@ function activado(j){
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 function pintarEstante(){
-  const lista = CATALOGO.filter(j => filtro === 'todos' || (filtro === 'pago') === !!j.pago);
+  // «Gratis»: todo lo que se puede usar gratis (también los Pro). «Pro»: todo lo que tiene clave.
+  const lista = CATALOGO.filter(j => filtro === 'todos' || (filtro === 'gratis' ? (!j.pago || j.pro) : !!j.pago));
   lista.sort((x, y) => nombreDe(x).localeCompare(nombreDe(y), idioma, { sensitivity:'base', numeric:true }));   // por orden alfabético, en el idioma de la app
   let html = '';
   for (const j of lista){
@@ -488,10 +506,15 @@ function pintarEstante(){
     else if (!j.pago){
       // Un gratuito ya abierto alguna vez se queda sin pegatina ni texto: ya se sabe que es gratis.
       if (abiertos.includes(j.id)) detalle = '';
-      else { pegatina = '<span class="pegatina gratis">'+t('gratis')+'</span>'; detalle = t('libre'); }
+      else { pegatina = '<span class="pegatina estrella"><span>'+t('gratis')+'</span></span>'; detalle = t('libre'); }
     }
     else if (act) detalle = '';   // con la clave puesta, la caja queda limpia: ya es suyo
-    else { pegatina = '<span class="pegatina pago">'+t('pago')+'</span>'; detalle = j.prueba === 1 ? t('prueba1') : t('pruebaN', {n:j.prueba}); }
+    else if (j.pro){
+      // Gratis + Pro: círculo amarillo «Gratis + Pro 🔒» y «Compras dentro» hasta que se pone la clave.
+      pegatina = '<span class="pegatina pro"><span class="g">'+t('gratis')+'</span><b>+Pro'+CANDADO+'</b></span>';
+      detalle = t('compras');
+    }
+    else { pegatina = '<span class="pegatina pago">'+t('pago')+'</span>'; detalle = t('compras'); }   // de pago (Catan): también «Compras dentro»
     const arte = '<span class="rotulo">'+nombre+'</span>' +
       (j.icono ? '<img src="'+esc(j.icono)+'" alt="" loading="lazy" onerror="this.remove()">' : '');
     const dentro = '<span class="hueco"><span class="frente" style="--c1:'+j.c1+';--c2:'+j.c2+';--ct:'+j.ct+'">'+arte+pegatina+'</span></span>' +
@@ -509,7 +532,7 @@ function pintarEstante(){
 }
 
 function pintarFiltros(){
-  $('filtros').innerHTML = [['todos','todos'],['gratis','gratis'],['pago','pago']].map(([id,k]) =>
+  $('filtros').innerHTML = [['todos','todos'],['gratis','gratis'],['pago','pro']].map(([id,k]) =>
     '<button type="button" data-f="'+id+'" aria-pressed="'+(filtro===id)+'">'+t(k)+'</button>').join('');
 }
 
