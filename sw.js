@@ -1,10 +1,10 @@
 /* LudoTech (PenTech) · service worker
-   Sube CACHE en cada publicación (ludoteca-v45 → ludoteca-v46 …).
+   Sube CACHE en cada publicación (ludoteca-v47 → ludoteca-v48 …).
 
    Importante: esta app vive en la raíz del sitio y los contadores cuelgan de ella.
    Este service worker SOLO atiende a la lanzadera (sus archivos y las imágenes que
    ella pide). Todo lo que pidan los contadores pasa de largo, sin tocarlo. */
-const CACHE = 'ludoteca-v45';
+const CACHE = 'ludoteca-v47';
 const BASE = new URL(self.registration.scope).pathname;
 const PROPIOS = [
   '', 'index.html', 'manifest.json',

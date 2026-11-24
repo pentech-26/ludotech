@@ -226,8 +226,11 @@ h1{font-family:var(--titulo);font-weight:400;font-size:clamp(3rem,16vw,4.6rem);l
   60%{transform:translateY(-4px) rotate(-2deg)}80%{transform:translateY(-1px) rotate(1deg)}}
 
 /* Pie */
-.pie{margin-top:26px;text-align:center}
-.pie button{color:var(--suave);font-size:.9rem;padding:10px 14px;text-decoration:underline;text-underline-offset:3px}
+.pie{margin-top:26px;text-align:center;color:var(--suave)}
+.pieCorto{margin:0 0 9px;font-size:.82rem}
+.pie button{font-size:.86rem;font-weight:600;color:var(--suave);padding:7px 18px;border:1.5px solid currentColor;border-radius:999px}
+.pie button:active{opacity:.6}
+.pieVer{margin:8px 0 0;font-size:.75rem;opacity:.7}
 
 /* Ventanas */
 dialog{border:0;border-radius:14px;padding:0;background:var(--papel);color:var(--tintaPapel);width:min(88vw,420px);max-height:82dvh;
@@ -236,7 +239,9 @@ dialog::backdrop{background:rgba(8,24,29,.6)}
 .vent{padding:20px 20px 18px}
 .vent h2{font-family:var(--titulo);font-weight:400;font-size:1.7rem;line-height:1;margin:0 0 14px}
 .vent p{margin:0 0 10px;font-size:.95rem;line-height:1.45;user-select:text;-webkit-user-select:text}
-.vent .ver{opacity:.65;font-size:.85rem}
+.vent .ver{opacity:.65;font-size:.85rem;text-align:center;margin-top:16px}
+.vent h3{margin:16px 0 5px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.vent h3:first-child{margin-top:0}
 .cerrar{display:block;width:100%;margin-top:14px;padding:13px;border-radius:10px;background:#14323a;color:#fbf6e9;font-weight:700}
 
 /* Visor: el contador abierto dentro de la Ludoteca */
@@ -244,11 +249,14 @@ dialog::backdrop{background:rgba(8,24,29,.6)}
   padding-top:env(safe-area-inset-top)}
 .visor.abierto{display:flex}
 .visor iframe{flex:1;width:100%;min-height:0;border:0;display:block;background:var(--vc,#14323a)}
-.visorBarra{flex:none;display:flex;justify-content:center;padding:5px 0 calc(5px + env(safe-area-inset-bottom));background:var(--vc,#14323a)}
-.visorBarra button{display:flex;align-items:center;gap:7px;min-height:34px;padding:0 16px 0 12px;border-radius:999px;
-  background:rgba(255,255,255,.16);color:#fff;font-weight:600;font-size:.9rem}
+.visorBarra{flex:none;display:flex;justify-content:center;background:var(--vc,#14323a);
+  /* franja compacta: el botón se mete en parte en la zona de la barra de inicio del iPhone, sin tocarla */
+  padding:3px 0 max(6px, calc(env(safe-area-inset-bottom) - 16px))}
+.visorBarra button{position:relative;display:flex;align-items:center;gap:5px;min-height:26px;padding:0 13px 0 9px;border-radius:999px;
+  background:rgba(255,255,255,.16);color:#fff;font-weight:600;font-size:.78rem}
+.visorBarra button::after{content:"";position:absolute;inset:-6px -10px}   /* zona de toque más grande que el botón */
 .visorBarra button:active{background:rgba(255,255,255,.3)}
-.visorBarra svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:empuja 1.3s ease-in-out infinite}
+.visorBarra svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:empuja 1.3s ease-in-out infinite}
 @keyframes empuja{0%,100%{transform:translateX(3px)}50%{transform:translateX(-4px)}}
 .visor.clara .visorBarra button{background:rgba(20,50,58,.12);color:#14323a}
 .visor.clara .visorBarra button:active{background:rgba(20,50,58,.24)}
@@ -311,7 +319,7 @@ body.conVisor{overflow:hidden}
     </div>
     <main class="estante" id="estante"></main>
   </div>
-  <div class="pie"><button type="button" id="bLegal"></button></div>
+  <div class="pie"><p class="pieCorto" id="pieCorto"></p><button type="button" id="bLegal"></button><p class="pieVer" id="pieVer"></p></div>
 </div>
 
 <dialog id="dLegal"><div class="vent"><h2 id="tLegal"></h2><div id="textoLegal"></div><button class="cerrar" type="button" id="bCerrar"></button></div></dialog>
@@ -324,6 +332,8 @@ body.conVisor{overflow:hidden}
 
 <script>
 'use strict';
+/* Aviso legal (mismo estilo que los contadores). Los textos antiguos `textoLegal` de T quedan sin uso. */
+const LEGAL = {"es": {"corto": "Contadores no oficiales · © 2026 PenTech", "fin": "LudoTech", "sec": [["Qué es LudoTech", "LudoTech es la estantería que reúne en un solo lugar los contadores de puntos de PenTech. Cada contador es una app independiente, con su propio aviso legal, sus condiciones y su versión; LudoTech solo los abre."], ["Juegos y marcas", "Los nombres de los juegos (7 Wonders, Agricola, Catan, Tichu, Wingspan…), sus marcas, componentes e ilustraciones pertenecen a sus autores y editoriales. Los contadores los ha creado PenTech de forma independiente: no están afiliados, patrocinados ni aprobados por ellos. No sustituyen al reglamento; para jugar necesitas un ejemplar de cada juego."], ["Gratis y Pro", "LudoTech es gratis. En la estantería, cada contador indica su modelo: «Gratis», que se usa entero sin pagar, o «Gratis + Pro», con una versión gratis sin límite de partidas y una versión completa que se desbloquea con una clave. Las claves se compran en la tienda de PenTech en Buy Me a Coffee, con sus propias condiciones. Cada clave se activa dentro de su contador y da acceso a esa app, no al juego; LudoTech solo comprueba en tu dispositivo si está activada, para quitar la pegatina. El diseño, los iconos, las ilustraciones y el código de LudoTech y de los contadores son de PenTech: no se pueden copiar, vender ni distribuir sin permiso."], ["Privacidad", "LudoTech no pide registro ni recoge datos personales, y no usa cookies, publicidad ni analítica. En tu dispositivo solo guarda el idioma, el tema y qué contadores has abierto alguna vez. Usa internet para descargar la app y abrir cada contador la primera vez. Cada contador explica qué guarda en su propio aviso legal."], ["Créditos", "© 2026 PenTech. Tipografías Bagel Fat One y Bricolage Grotesque, con licencia SIL Open Font License 1.1. El sonido del meeple lo sintetiza la propia app."], ["Contacto", "Instagram: @pentech_26"]]}, "ca": {"corto": "Comptadors no oficials · © 2026 PenTech", "fin": "LudoTech", "sec": [["Què és LudoTech", "LudoTech és la prestatgeria que aplega en un sol lloc els comptadors de punts de PenTech. Cada comptador és una app independent, amb el seu propi avís legal, les seves condicions i la seva versió; LudoTech només els obre."], ["Jocs i marques", "Els noms dels jocs (7 Wonders, Agricola, Catan, Tichu, Wingspan…), les seves marques, components i il·lustracions pertanyen als seus autors i editorials. Els comptadors els ha creat PenTech de manera independent: no estan afiliats, patrocinats ni aprovats per ells. No substitueixen el reglament; per jugar necessites un exemplar de cada joc."], ["Gratuït i Pro", "LudoTech és gratuïta. A la prestatgeria, cada comptador indica el seu model: «Gratis», que es fa servir sencer sense pagar, o «Gratis + Pro», amb una versió gratuïta sense límit de partides i una versió completa que es desbloqueja amb una clau. Les claus es compren a la botiga de PenTech a Buy Me a Coffee, amb les seves pròpies condicions. Cada clau s’activa dins del seu comptador i dona accés a aquella app, no al joc; LudoTech només comprova al teu dispositiu si està activada, per treure l’adhesiu. El disseny, les icones, les il·lustracions i el codi de LudoTech i dels comptadors són de PenTech: no es poden copiar, vendre ni distribuir sense permís."], ["Privadesa", "LudoTech no demana registre ni recull dades personals, i no fa servir galetes, publicitat ni analítica. Al teu dispositiu només desa l’idioma, el tema i quins comptadors has obert alguna vegada. Fa servir internet per descarregar l’app i obrir cada comptador la primera vegada. Cada comptador explica què desa al seu propi avís legal."], ["Crèdits", "© 2026 PenTech. Tipografies Bagel Fat One i Bricolage Grotesque, amb llicència SIL Open Font License 1.1. El so del meeple el sintetitza la mateixa app."], ["Contacte", "Instagram: @pentech_26"]]}, "en": {"corto": "Unofficial score counters · © 2026 PenTech", "fin": "LudoTech", "sec": [["What LudoTech is", "LudoTech is the shelf that brings PenTech’s score counters together in one place. Each counter is a separate app, with its own legal notice, terms and version; LudoTech only opens them."], ["Games and trademarks", "The names of the games (7 Wonders, Agricola, Catan, Tichu, Wingspan…), their trademarks, components and artwork belong to their designers and publishers. The counters were created independently by PenTech: they are not affiliated with, sponsored or endorsed by them. They do not replace the rulebook; to play you need a copy of each game."], ["Free and Pro", "LudoTech is free. On the shelf, each counter shows its model: “Free”, fully usable without paying, or “Free + Pro”, with a free version with unlimited games and a full version unlocked with a key. Keys are sold in PenTech’s shop on Buy Me a Coffee, under its own terms. Each key is activated inside its counter and gives access to that app, not to the game; LudoTech only checks on your device whether it is active, to remove the sticker. The design, icons, artwork and code of LudoTech and the counters belong to PenTech: they may not be copied, sold or distributed without permission."], ["Privacy", "LudoTech requires no sign-up and collects no personal data; it uses no cookies, ads or analytics. On your device it only stores the language, the theme and which counters you have opened. It uses the internet to download the app and to open each counter the first time. Each counter explains what it stores in its own legal notice."], ["Credits", "© 2026 PenTech. Bagel Fat One and Bricolage Grotesque typefaces, under the SIL Open Font License 1.1. The meeple sound is synthesised by the app itself."], ["Contact", "Instagram: @pentech_26"]]}, "fr": {"corto": "Compteurs non officiels · © 2026 PenTech", "fin": "LudoTech", "sec": [["Qu’est-ce que LudoTech", "LudoTech est l’étagère qui réunit en un seul endroit les compteurs de points de PenTech. Chaque compteur est une app indépendante, avec ses propres mentions légales, ses conditions et sa version ; LudoTech se contente de les ouvrir."], ["Jeux et marques", "Les noms des jeux (7 Wonders, Agricola, Catan, Tichu, Wingspan…), leurs marques, leur matériel et leurs illustrations appartiennent à leurs auteurs et éditeurs. Les compteurs ont été créés de façon indépendante par PenTech : ils ne sont ni affiliés, ni sponsorisés, ni approuvés par eux. Ils ne remplacent pas la règle ; pour jouer, il faut un exemplaire de chaque jeu."], ["Gratuit et Pro", "LudoTech est gratuite. Sur l’étagère, chaque compteur indique son modèle : « Gratuit », utilisable entièrement sans payer, ou « Gratuit + Pro », avec une version gratuite sans limite de parties et une version complète débloquée par une clé. Les clés s’achètent dans la boutique de PenTech sur Buy Me a Coffee, selon ses propres conditions. Chaque clé s’active dans son compteur et donne accès à cette app, pas au jeu ; LudoTech vérifie seulement sur votre appareil si elle est activée, pour retirer l’autocollant. Le design, les icônes, les illustrations et le code de LudoTech et des compteurs appartiennent à PenTech : ils ne peuvent être copiés, vendus ni distribués sans autorisation."], ["Confidentialité", "LudoTech ne demande aucune inscription et ne collecte aucune donnée personnelle ; elle n’utilise ni cookies, ni publicité, ni statistiques. Sur votre appareil, elle enregistre seulement la langue, le thème et les compteurs déjà ouverts. Elle utilise internet pour télécharger l’app et ouvrir chaque compteur la première fois. Chaque compteur indique ce qu’il enregistre dans ses propres mentions légales."], ["Crédits", "© 2026 PenTech. Polices Bagel Fat One et Bricolage Grotesque, sous licence SIL Open Font License 1.1. Le son du meeple est synthétisé par l’app elle-même."], ["Contact", "Instagram : @pentech_26"]]}, "de": {"corto": "Inoffizielle Punktezähler · © 2026 PenTech", "fin": "LudoTech", "sec": [["Was ist LudoTech", "LudoTech ist das Regal, das die Punktezähler von PenTech an einem Ort versammelt. Jeder Zähler ist eine eigenständige App mit eigenen rechtlichen Hinweisen, Bedingungen und eigener Version; LudoTech öffnet sie nur."], ["Spiele und Marken", "Die Namen der Spiele (7 Wonders, Agricola, Catan, Tichu, Wingspan…), ihre Marken, Komponenten und Illustrationen gehören ihren Autoren und Verlagen. Die Zähler wurden von PenTech unabhängig entwickelt: Sie sind weder mit ihnen verbunden noch von ihnen gesponsert oder genehmigt. Sie ersetzen nicht die Spielregel; zum Spielen brauchst du ein Exemplar des jeweiligen Spiels."], ["Gratis und Pro", "LudoTech ist kostenlos. Im Regal zeigt jeder Zähler sein Modell: „Gratis“, vollständig ohne Bezahlung nutzbar, oder „Gratis + Pro“, mit einer kostenlosen Version ohne Partienlimit und einer Vollversion, die mit einem Schlüssel freigeschaltet wird. Die Schlüssel gibt es im Shop von PenTech bei Buy Me a Coffee, zu dessen eigenen Bedingungen. Jeder Schlüssel wird in seinem Zähler aktiviert und gibt Zugang zu dieser App, nicht zum Spiel; LudoTech prüft nur auf deinem Gerät, ob er aktiv ist, um den Aufkleber zu entfernen. Design, Icons, Illustrationen und Code von LudoTech und den Zählern gehören PenTech: Sie dürfen ohne Erlaubnis weder kopiert noch verkauft oder verbreitet werden."], ["Datenschutz", "LudoTech verlangt keine Registrierung und erhebt keine personenbezogenen Daten; es gibt keine Cookies, keine Werbung und keine Analyse. Auf deinem Gerät werden nur Sprache, Darstellung und die bereits geöffneten Zähler gespeichert. Das Internet wird genutzt, um die App herunterzuladen und jeden Zähler beim ersten Mal zu öffnen. Was jeder Zähler speichert, steht in seinen eigenen rechtlichen Hinweisen."], ["Credits", "© 2026 PenTech. Schriften Bagel Fat One und Bricolage Grotesque unter der SIL Open Font License 1.1. Der Meeple-Sound wird von der App selbst erzeugt."], ["Kontakt", "Instagram: @pentech_26"]]}, "it": {"corto": "Contatori non ufficiali · © 2026 PenTech", "fin": "LudoTech", "sec": [["Che cos’è LudoTech", "LudoTech è lo scaffale che riunisce in un solo posto i contatori di punti di PenTech. Ogni contatore è un’app indipendente, con le proprie note legali, condizioni e versione; LudoTech si limita ad aprirli."], ["Giochi e marchi", "I nomi dei giochi (7 Wonders, Agricola, Catan, Tichu, Wingspan…), i loro marchi, componenti e illustrazioni appartengono ai rispettivi autori ed editori. I contatori sono stati creati da PenTech in modo indipendente: non sono affiliati, sponsorizzati né approvati da loro. Non sostituiscono il regolamento; per giocare serve una copia di ogni gioco."], ["Gratis e Pro", "LudoTech è gratuita. Sullo scaffale ogni contatore indica il suo modello: «Gratis», utilizzabile per intero senza pagare, oppure «Gratis + Pro», con una versione gratuita senza limite di partite e una versione completa che si sblocca con una chiave. Le chiavi si acquistano nel negozio di PenTech su Buy Me a Coffee, alle sue condizioni. Ogni chiave si attiva all’interno del suo contatore e dà accesso a quell’app, non al gioco; LudoTech controlla soltanto sul tuo dispositivo se è attiva, per togliere l’adesivo. Design, icone, illustrazioni e codice di LudoTech e dei contatori sono di PenTech: non possono essere copiati, venduti né distribuiti senza permesso."], ["Privacy", "LudoTech non richiede registrazione e non raccoglie dati personali; non usa cookie, pubblicità né statistiche. Sul tuo dispositivo salva solo la lingua, il tema e quali contatori hai già aperto. Usa internet per scaricare l’app e per aprire ogni contatore la prima volta. Ogni contatore spiega cosa salva nelle proprie note legali."], ["Crediti", "© 2026 PenTech. Caratteri Bagel Fat One e Bricolage Grotesque, con licenza SIL Open Font License 1.1. Il suono del meeple è sintetizzato dall’app stessa."], ["Contatti", "Instagram: @pentech_26"]]}};
 const VERSION = 'v1.0';   // visible en el pie. No se toca hasta que Davito lo diga.
 
 /* ============================================================
@@ -350,7 +360,7 @@ const CATALOGO = [
   { id:'ratas-de-wistar', nombre:{ es:'Ratas de Wistar', ca:'Ratas de Wistar', otros:'Rats of Wistar' }, pago:false,
     url:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/', icono:'https://pentech-26.github.io/Ratas-de-Wistar-Contador/icon-192.png',
     c1:'#3d6336', c2:'#2f4a2b', ct:'#f1e6b8' },
-  { id:'catan', nombre:'Catan', pago:true, prueba:3, lic:{ clave:'catan-licencia-v1' },
+  { id:'catan', nombre:'Catan', pago:true, pro:true, lic:{ clave:'catan-licencia-v1' },
     url:'https://pentech-26.github.io/Catan-contador/', icono:'https://pentech-26.github.io/Catan-contador/icon-192.png',
     c1:'#c5341f', c2:'#8f1f14', ct:'#f6cf5b' },
   { id:'tichu', nombre:'Tichu', pago:true, pro:true, lic:{ clave:'tichu-pro-lic' },
@@ -363,7 +373,7 @@ const CATALOGO = [
     url:'https://pentech-26.github.io/Agricola-contador/', icono:'https://pentech-26.github.io/Agricola-contador/icon-192.png',
     c1:'#5c8a3c', c2:'#35603a', ct:'#f3e2b0', franja:'#35603a' },
   { id:'wingspan', nombre:'Wingspan', pago:true, pro:true, lic:{ clave:'wingspan-licencia-v1', valor:'true' },
-    url:'https://pentech-26.github.io/Wingspan-contador/', icono:'https://pentech-26.github.io/Wingspan-contador/icon-192.png',
+    url:'https://pentech-26.github.io/wingspan-contador/', icono:'https://pentech-26.github.io/wingspan-contador/icon-192.png',
     c1:'#3f78b5', c2:'#2a5a8c', ct:'#fffdf8', franja:'#cfe8f7' }
 ];
 
@@ -523,11 +533,13 @@ function pintarEstante(){
       ? '<a class="caja" href="'+esc(j.url)+'" data-id="'+j.id+'" aria-label="'+esc(t('abrir',{j:nombreDe(j)}))+'">'+dentro+'</a>'
       : '<button type="button" class="caja pronto" data-id="'+j.id+'">'+dentro+'</button>';
   }
-  // Si queda un hueco suelto, lo ocupa una caja de cartón misteriosa: el próximo contador, en camino.
-  if (lista.length % 2) html += '<button type="button" class="caja misterio" aria-label="'+esc(t('misterio')+'. '+t('secreto'))+'">' +
+  // La caja de cartón misteriosa (el próximo contador, en camino) sale siempre, la última.
+  html += '<button type="button" class="caja misterio" aria-label="'+esc(t('misterio')+'. '+t('secreto'))+'">' +
     '<span class="hueco"><span class="frente kraft"><span class="etiqueta"><i>'+t('envioDe')+'</i><i>'+t('envioPara')+'</i><b>?</b><s></s></span>' +
     '<span class="flechas">↑↑</span></span></span>' +
     '<span class="balda"><span class="ficha"><b>'+t('misterio')+'</b><small>'+t('secreto')+'</small></span></span></button>';
+  // Si con ella la balda queda coja, se cierra con un tramo vacío.
+  if ((lista.length + 1) % 2) html += '<span class="caja vacia" aria-hidden="true"><span class="hueco"></span><span class="balda"></span></span>';
   $('estante').innerHTML = html;
 }
 
@@ -544,14 +556,16 @@ function aplicarIdioma(){
     $('introFrase').textContent = t('sub');
     $('introToca').textContent = t('empieza');
   }
-  $('bLegal').textContent = t('legal') + ' · ' + VERSION;
+  $('bLegal').textContent = t('legal');
+  $('pieCorto').textContent = LEGAL[idioma].corto;
+  $('pieVer').textContent = VERSION;
   $('bIdioma').setAttribute('aria-label', t('idioma'));
   $('tLegal').textContent = t('legal');
   $('bCerrar').textContent = t('cerrar');
   $('gira').textContent = t('gira');
   $('tVolver').textContent = t('volver');
-  $('textoLegal').innerHTML = T[idioma].textoLegal.map(p => '<p>'+esc(p)+'</p>').join('') +
-    '<p class="ver">LudoTech · PenTech · '+VERSION+'</p>';
+  $('textoLegal').innerHTML = LEGAL[idioma].sec.map(([h, p]) => '<h3>'+esc(h)+'</h3><p>'+esc(p)+'</p>').join('') +
+    '<p class="ver">'+esc(LEGAL[idioma].fin)+' · '+VERSION+'</p>';
   pintarMenuTema(); pintarMenuIdioma();
   pintarFiltros(); pintarEstante(); aplicarTema();
 }
