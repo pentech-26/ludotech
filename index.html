@@ -237,6 +237,7 @@ dialog{border:0;border-radius:14px;padding:0;background:var(--papel);color:var(-
   box-shadow:0 18px 50px rgba(0,0,0,.45);font-family:var(--texto)}
 dialog::backdrop{background:rgba(8,24,29,.6)}
 .vent{padding:20px 20px 18px}
+.vent h2:focus{outline:none}
 .vent h2{font-family:var(--titulo);font-weight:400;font-size:1.7rem;line-height:1;margin:0 0 14px}
 .vent p{margin:0 0 10px;font-size:.95rem;line-height:1.45;user-select:text;-webkit-user-select:text}
 .vent .ver{opacity:.65;font-size:.85rem;text-align:center;margin-top:16px}
@@ -322,7 +323,7 @@ body.conVisor{overflow:hidden}
   <div class="pie"><p class="pieCorto" id="pieCorto"></p><button type="button" id="bLegal"></button><p class="pieVer" id="pieVer"></p></div>
 </div>
 
-<dialog id="dLegal"><div class="vent"><h2 id="tLegal"></h2><div id="textoLegal"></div><button class="cerrar" type="button" id="bCerrar"></button></div></dialog>
+<dialog id="dLegal"><div class="vent"><h2 id="tLegal" tabindex="-1" autofocus></h2><div id="textoLegal"></div><button class="cerrar" type="button" id="bCerrar"></button></div></dialog>
 <div class="visor" id="visor">
   <div class="visorBarra"><button type="button" id="bVolver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5.500L4.500 12l6.500 6.500"/></svg><span id="tVolver"></span></button></div>
 </div>
@@ -644,7 +645,35 @@ $('menuIdioma').addEventListener('click', e => {
   idioma = b.dataset.l; mem.guardar('ludoteca-idioma', idioma);
   cerrarMenus(); aplicarIdioma();
 });
-$('bLegal').addEventListener('click', () => $('dLegal').showModal());
+/* Aviso legal: se abre por el principio y, si no se toca, baja solo a ritmo de lectura.
+   Espera 2 s, baja a 25 px/s y se para al llegar al final, al tocar o al hacer scroll a mano. */
+const LEER = { espera:2000, velocidad:25 };
+let lectura = null;
+function paraLectura(){ if (lectura){ clearTimeout(lectura.reloj); cancelAnimationFrame(lectura.paso); lectura = null; } }
+function empiezaLectura(d){
+  paraLectura();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const l = lectura = { y:0, antes:0 };
+  l.reloj = setTimeout(() => {
+    const paso = ts => {
+      if (lectura !== l) return;
+      const dt = l.antes ? Math.min(.1, (ts - l.antes) / 1000) : 0; l.antes = ts;
+      if (Math.abs(d.scrollTop - Math.round(l.y)) > 2) return paraLectura();   // alguien lo ha movido a mano
+      l.y = Math.min(l.y + LEER.velocidad * dt, d.scrollHeight - d.clientHeight);
+      d.scrollTop = l.y;
+      if (l.y >= d.scrollHeight - d.clientHeight - .5) return paraLectura();     // fin del texto
+      l.paso = requestAnimationFrame(paso);
+    };
+    l.paso = requestAnimationFrame(paso);
+  }, LEER.espera);
+}
+['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(ev => $('dLegal').addEventListener(ev, paraLectura, { passive:true }));
+$('dLegal').addEventListener('close', () => { if (!$('dLegal').open) paraLectura(); });   // el evento llega con retraso
+$('bLegal').addEventListener('click', () => {
+  const d = $('dLegal'); d.showModal();
+  d.scrollTop = 0; $('tLegal').focus({ preventScroll:true });   // que se abra por el principio, no en «Cerrar»
+  empiezaLectura(d);
+});
 $('bCerrar').addEventListener('click', () => $('dLegal').close());
 for (const d of document.querySelectorAll('dialog'))
   d.addEventListener('click', e => { if (e.target === d) d.close(); });   // tocar fuera cierra
